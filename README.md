@@ -25,6 +25,75 @@ rest of this README explains why.
 
 Then, before trusting any of it, read the next section.
 
+## The alerts
+
+29 definitions. Priority 3 is Graylog's "high", 1 is "low". Baselines are from
+one real tenant over 90 days — yours will differ, which is the point of
+`sync.py --dry`.
+
+Four alerts marked **flat** only work on a feed where `ModifiedProperties` and
+`Parameters` have been flattened into real fields; on a raw-JSON feed they
+match nothing at all. See failure mode 8.
+
+### Account takeover and persistence
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| mail forwarding configured | 3 | `ForwardTo`/`RedirectTo` on an inbox rule, and `Set-Mailbox` forwarding — the vector needing no rule at all | 4 / 90d **flat** |
+| MFA method changed | 3 | authenticator added or removed. Entra's own "security info" events never reach this API; they arrive as `Update user.` | 13 / 90d **flat** |
+| inbox rule created or modified | 2 | `New-InboxRule`, `Set-InboxRule` — classic BEC persistence | 25 / 90d |
+| inbox rules changed from Outlook client | 1 | `UpdateInboxRules`, which the alert above does not see | 72 / 90d |
+| mailbox delegation granted | 3 | FullAccess and SendAs: reading a mailbox without touching its password | ~3 / 90d |
+| user password reset by admin | 2 | `Reset user password.` | 20 / 90d |
+| repeated bad password for one account | 3 | >10 genuine bad passwords in 30 min, excluding MFA interrupts | ~1 / quarter |
+| password spray from one source | 3 | one IP failing against >3 distinct accounts | never |
+
+### Privilege and application abuse
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| directory role assigned | 3 | `Add member to role.`, `Add eligible member to role.` | 0 / 90d |
+| OAuth admin permission granted | 3 | `Add app role assignment to service principal.` — application permissions, including `full_access_as_app` | 22 / 90d |
+| admin consent granted to application | 3 | admin consent only, separated from ordinary user consent | 9 vs 118 / 90d **flat** |
+| app credentials added | 3 | a new secret or certificate on an app you already trust | 26 / 90d |
+| Entra app registration created | 2 | `Add application.` | 36 / 90d |
+| user account created | 2 | `Add user.` | 17 / 90d |
+| group created | 1 | `Add group.`, `New-UnifiedGroup`, `New-DistributionGroup` | 45 / 90d |
+
+### Sign-in geography
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| login from unexpected country | 2 | sign-in outside `HOME_CC`, minus per-user exceptions | 18 / 90d |
+| login from outside EU/EEA | 2 | the broader allowlist, for a higher-confidence signal | 4 / 90d |
+| bad password attempt from outside EU/EEA | 3 | failed sign-ins from abroad, invisible to the two above, which need a *successful* login | 2 / 90d |
+
+### Weakening the defences
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| mailbox audit bypass configured | 3 | `Set-MailboxAuditBypassAssociation` — stops a mailbox being audited at all | 0 / 90d |
+| admin audit configuration changed | 3 | `Set-AdminAuditLogConfig`, excluding Exchange's own service account | 0 / 90d filtered |
+| Microsoft alert policy tampered with | 3 | disabling or editing Purview alert policies, which are themselves a detection layer | 0 / 90d |
+| mail security policy weakened | 3 | anti-phish, malware filter, spam policy, `Set-RemoteDomain` | 0 / 90d |
+| transport rule changed | 3 | mail-flow rules, which can silently copy or divert all mail | 0 / 90d |
+| domain or federation changed | 3 | federation takeover — full-tenant compromise. **Names unproven**, see failure mode 4 | 0 / 90d |
+
+### Data movement
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| mailbox export requested | 3 | `New-MailboxExportRequest`, `New-ComplianceSearch`/`Action` | 0 / 90d |
+| anonymous sharing link created | 2 | `AnonymousLinkCreated`, `AddedToSecureLink`, `AddedToSharingLink`, `SharingInvitationCreated` | 41 / 90d |
+
+### Relaying Microsoft and watching ourselves
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| Microsoft security alert raised | 3 | Microsoft's own Purview alert policies, minus user-reported-email noise. These are **default** policies, present without Defender P2 | 12 / 90d **flat** |
+| GELF collector stopped sending | 3 | no records for 2h. The gap no window size closes — see failure mode 2 | — |
+| plaintext collector stopped sending | 3 | same, for a second feed. Delete if you run one collector | — |
+
 ## The failure modes this set exists to avoid
 
 These cost real debugging time. None of them are documented by Microsoft or
