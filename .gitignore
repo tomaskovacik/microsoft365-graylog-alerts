@@ -1,0 +1,5 @@
+# Local, per-install. Never commit these.
+tools/config.py
+tools/.gltok
+__pycache__/
+*.pyc

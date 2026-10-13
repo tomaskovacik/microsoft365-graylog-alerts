@@ -1,0 +1,3865 @@
+{
+ "v": "1",
+ "id": "a6f5c1e2-0b7d-4c3a-9e8f-1d2c3b4a5e6f",
+ "rev": 1,
+ "name": "Microsoft 365 audit alerts",
+ "summary": "29 security alerts for Microsoft 365 Management API audit logs",
+ "description": "Event definitions for Office 365 / Entra audit logs collected into Graylog. Every query and threshold was validated against 90 days of real tenant data before inclusion - see the README for the failure modes this set exists to avoid.\n\nAfter importing: set the notification recipients, point the definitions at your own stream(s), and edit the per-user country exceptions in the two geo alerts, which ship with example.com placeholders.",
+ "vendor": "community",
+ "url": "https://github.com/tomaskovacik/microsoft365-graylog-alerts",
+ "parameters": [],
+ "entities": [
+  {
+   "id": "04fa9427-c0b3-4d10-8ef5-ef25b235171e",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - MFA method changed"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 13/90d across 4 users. Goes blind if the GELF collector stops, since plaintext cannot express this query"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.628Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Update user.\" AND _exists_:StrongAuthenticationPhoneAppDetail_NewValue_Id"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "ObjectId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "ObjectId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "ObjectId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ObjectId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "ObjectId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "d9b15a3f-336d-4a7c-a45b-2174ea2ac1f5",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - group created"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 45/90d"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.500Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 1
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Add group.\" OR \"New-UnifiedGroup\" OR \"New-DistributionGroup\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "e7f17173-04b3-443d-afa2-99e6b3aa012d",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - inbox rule created or modified"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 25/90d - classic BEC persistence"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.460Z",
+    "matched_at": "2026-10-13T20:20:16.643Z",
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"New-InboxRule\" OR \"Set-InboxRule\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "f6a44111-8759-4b5e-8e04-de243e055fa0",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - admin audit configuration changed"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 51/90d unfiltered, 0 after excluding MSExchangeAdminApiNetCore - exclusion verified to be what silences it"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.501Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Set-AdminAuditLogConfig\" AND NOT UserId:\"NT SERVICE\\\\MSExchangeAdminApiNetCore (Microsoft.Exchange.AdminApi.NetCore)\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "47c093b6-c179-468e-a3dc-467afebaeebf",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - directory role assigned"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d - privilege escalation. Naming confirmed by 'Add member to group.' (307/90d) using the same pattern"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.272Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Add member to role.\" OR \"Add eligible member to role.\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "5209f866-5657-413a-b87a-ce6f4398f3f7",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - Microsoft alert policy tampered with"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: New-ProtectionAlert CONFIRMED by 4 records on 2026-10-13 20:00 when the tenant owner created policies in the portal; the other three names follow the same proven Exchange cmdlet rule. Matters because Microsoft's own policies are now a detection layer: disabling them creates a blind spot, the same move as mailbox audit bypass"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.270Z",
+    "matched_at": "2026-10-13T20:27:21.255Z",
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Disable-ProtectionAlert\" OR \"Remove-ProtectionAlert\" OR \"Set-ProtectionAlert\" OR \"New-ProtectionAlert\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "727fc4e8-ca32-464a-a021-4589ab9742cb",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mailbox export requested"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d - bulk extraction of a mailbox to file. New-MailboxExportRequest is hybrid-only and cannot occur on a cloud-only tenant; the Compliance pair is the cloud path"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.227Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"New-MailboxExportRequest\" OR \"New-ComplianceSearchAction\" OR \"New-ComplianceSearch\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "a2c33318-83ac-47e1-9d4f-346675d7b1a1",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - plaintext collector stopped sending"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: No plaintext records for 2h (floor was 10/hour over 180 measured hours). ACTION: check the plaintext collector. Catch-up records keep their original CreationTime and will NOT retrigger alerts, so review the gap by hand. Retire this definition when the plaintext feed is retired"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.872Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": ""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46"
+     ],
+     "stream_categories": [],
+     "group_by": [],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": null
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": "<",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 1.0
+       }
+      }
+     },
+     "search_within_ms": 7200000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {},
+    "key_spec": [],
+    "notification_settings": {
+     "grace_period_ms": 21600000,
+     "backlog_size": 0
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "8646078a-258b-4c6b-8c70-7f5e333e7d30",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - Entra app registration created"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 36/90d. 'Add service principal.' (60/90d) is deliberately not included: it also fires when a first-party app is first used"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.542Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Add application.\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "b35a38d9-b74a-46ca-8743-25079b7185ad",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mailbox delegation granted"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: ~3 human-initiated in 90d. FullAccess and SendAs are how a mailbox is read without touching its password"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.808Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Add-MailboxPermission\" OR \"Add-RecipientPermission\") AND NOT UserId:\"NT SERVICE\\\\MSExchangeAdminApiNetCore (Microsoft.Exchange.AdminApi.NetCore)\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "b0db737d-996f-4328-bd84-e13c346b0fd1",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - repeated bad password for one account"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: threshold >10 per 30min; worst legitimate case in 90d was 15, so this fires about once a quarter"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.979Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:UserLoginFailed AND LogonError:InvalidUserNameOrPassword"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 10.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "e11b9d1e-5858-4741-9ffb-77aa78f58391",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - login from unexpected country"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 18 logins in 90d resolving to 8 distinct trips, about one mail every 11 days"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.628Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code AND NOT UserType:4 AND NOT UserId:/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ AND NOT ClientIP_country_code:SK AND NOT (UserId:\"partner6@example.org\" AND ClientIP_country_code:EE) AND NOT (UserId:\"based.abroad1@example.com\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"partner3@example.org\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"partner2@example.org\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"vpn.user3@example.com\" AND ClientIP_country_code:BE) AND NOT (UserId:\"based.abroad2@example.com\" AND ClientIP_country_code:BE) AND NOT (UserId:\"contractor.abroad@example.com\" AND ClientIP_country_code:BE) AND NOT (UserId:\"partner4@example.org\" AND ClientIP_country_code:(LI OR AT OR CH)) AND NOT (UserId:\"partner5@example.org\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"vpn.user2@example.com\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"traveller@example.com\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"vpn.user1@example.com\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"partner1@example.org\" AND ClientIP_country_code:CZ) AND NOT (UserId:\"remote.employee@example.com\" AND ClientIP_country_code:CZ)"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId",
+      "ClientIP_country_code"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     },
+     "ClientIP_country_code": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ClientIP_country_code}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId",
+     "ClientIP_country_code"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 86400000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "1127430b-f06e-4c80-8b18-8da1cb1dbaa4",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - OAuth admin permission granted"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 22/90d - application permissions granted to a service principal; observed grants include full_access_as_app"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.365Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Add app role assignment to service principal.\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "9c3f4440-61c2-45c4-a1d2-6ba31b3ac87a",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - admin consent granted to application"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 9/90d admin vs 3/90d ordinary user consent. Unfiltered 'Consent to application.' is 127/90d and mostly user consent"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.587Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Consent to application.\" AND ConsentContext_IsAdminConsent_NewValue:True"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "e95865a2-02f8-4d7f-a3dd-038813c0e3f2",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - password spray from one source"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: one ClientIP failing bad passwords against >3 distinct accounts in 30 min. Max observed in 90d is 1 account per IP, so this has never fired"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.759Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:UserLoginFailed AND LogonError:InvalidUserNameOrPassword"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "ClientIP"
+     ],
+     "series": [
+      {
+       "type": "card",
+       "id": "card-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "card-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 3.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "ClientIP": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ClientIP}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "ClientIP"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "8c08b536-5f37-42db-89db-97cdf6a61244",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - transport rule changed"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d - mail flow rules can silently copy or divert all mail"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.055Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"New-TransportRule\" OR \"Set-TransportRule\" OR \"Remove-TransportRule\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "34ba7112-ecd4-4ef6-9939-891be9877809",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - bad password attempt from outside EU/EEA"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 2 in 90d (IN, RU). Invisible to the geo alerts, which require a successful login"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.099Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:UserLoginFailed AND LogonError:InvalidUserNameOrPassword AND _exists_:ClientIP_country_code AND NOT ClientIP_country_code:(AT OR BE OR BG OR HR OR CY OR CZ OR DK OR EE OR FI OR FR OR DE OR GR OR HU OR IE OR IT OR LV OR LT OR LU OR MT OR NL OR PL OR PT OR RO OR SK OR SI OR ES OR SE OR IS OR LI OR NO OR CH OR GB)"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId",
+      "ClientIP_country_code"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     },
+     "ClientIP_country_code": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ClientIP_country_code}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId",
+     "ClientIP_country_code"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "5693306d-50f8-472c-8e44-d9abe107c92c",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - user password reset by admin"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 20/90d by a single admin, clustered in one fortnight - query proven against real admin activity"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.317Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Reset user password.\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "c1afea58-5608-49b9-9b8e-90c633566bde",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mail forwarding configured"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 4 inbox-rule forwards in 90d (all internal), 0 mailbox-level. UNVERIFIED: no forwarding rule exists inside the GELF window yet, so the field names are inferred from the flattening of MoveToFolder/From/Name. Confirm with a throwaway rule"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.727Z",
+    "matched_at": "2026-10-13T20:20:27.008Z",
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "(Operation:(\"New-InboxRule\" OR \"Set-InboxRule\" OR \"UpdateInboxRules\") AND (_exists_:ForwardTo OR _exists_:RedirectTo OR _exists_:ForwardAsAttachmentTo)) OR (Operation:\"Set-Mailbox\" AND (_exists_:ForwardingSmtpAddress OR _exists_:ForwardingAddress))"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "a671174e-482e-4570-8d28-ad8daa5397dd",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mailbox audit bypass configured"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d - stops a mailbox being audited at all"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.180Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Set-MailboxAuditBypassAssociation\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "deabaecd-2c2e-401d-9105-a460d4743ea3",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - app credentials added"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 26 distinct in 90d (154 raw, inflated by a collector duplication bug), all by one admin. ~0.3/day"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.767Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Update application \u2013 Certificates and secrets management\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "64e9afd2-918a-4ae6-94d8-5ef5ec3d9ac4",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - user account created"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 17/90d"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.456Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"Add user.\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "202e9964-9f7d-486a-9f64-d804f90476fb",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - login from outside EU/EEA"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 4/90d with this allowlist (LK x2, AE, TR). Strict EU-only would add 60 hits from one user behind an LI exit node. _exists_ guard is required: without it a record missing the geoip field satisfies the NOT and fires"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.716Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code AND NOT ClientIP_country_code:(AT OR BE OR BG OR HR OR CY OR CZ OR DK OR EE OR FI OR FR OR DE OR GR OR HU OR IE OR IT OR LV OR LT OR LU OR MT OR NL OR PL OR PT OR RO OR SK OR SI OR ES OR SE OR IS OR LI OR NO OR CH OR GB) AND NOT UserType:4 AND NOT UserId:/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId",
+      "ClientIP_country_code"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     },
+     "ClientIP_country_code": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ClientIP_country_code}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId",
+     "ClientIP_country_code"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 86400000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "5465d0cf-eef7-4741-9bc1-0ea3b6f3b534",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mail security policy weakened"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d. Names follow the proven Exchange cmdlet rule. Set-RemoteDomain is how tenant-wide auto-forwarding gets re-enabled"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.372Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Set-AntiPhishPolicy\" OR \"Set-MalwareFilterPolicy\" OR \"Set-HostedContentFilterPolicy\" OR \"Set-HostedOutboundSpamFilterPolicy\" OR \"Set-RemoteDomain\" OR \"Remove-AntiPhishPolicy\" OR \"Remove-MalwareFilterPolicy\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "9fc4a0c9-692e-4f03-9885-6be310466caf",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - Microsoft security alert raised"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 12/90d, all 'Creation of forwarding/redirect rule'. The three excluded policies are user-reported email (90/90d) and carry no attacker signal"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.679Z",
+    "matched_at": "2026-10-13T20:23:42.521Z",
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "RecordType:40 AND NOT Name:(\"Email reported by user as not junk\" OR \"Email reported by user as malware or phish\" OR \"Email reported by user as junk\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "Name"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "Name"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "Name": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.Name}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "Name"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "decc7757-ebaf-43ee-9a80-a3d23ba63a0b",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - GELF collector stopped sending"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: No o365-logs records for 2h (floor was 10/hour over 180 measured hours). ACTION: check the GELF collector on dxc-vpn. IMPORTANT - once it resumes, the catch-up records carry their original CreationTime, so they land outside every alert window and will NOT retrigger any alert. Review the outage period by hand. While this feed is down the admin-consent, MFA and Microsoft-security-alert rules are blind, as they only work on GELF"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.809Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": ""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": null
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": "<",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 1.0
+       }
+      }
+     },
+     "search_within_ms": 7200000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {},
+    "key_spec": [],
+    "notification_settings": {
+     "grace_period_ms": 21600000,
+     "backlog_size": 0
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "8298574e-e8fb-4d58-8045-06ce24391def",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - anonymous sharing link created"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 41/90d"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.418Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"AnonymousLinkCreated\" OR \"SharingInvitationCreated\" OR \"AddedToSecureLink\" OR \"AddedToSharingLink\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "b96cfb07-a742-491b-afdd-9900beb93cae",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - domain or federation changed"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d. UNPROVEN NAMES (Entra friendly-string format). Federation takeover is a full-tenant compromise"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:49.222Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(\"Set domain authentication.\" OR \"Set federation settings on domain.\" OR \"Add domain to company.\" OR \"Remove domain from company.\" OR \"Verify domain.\")"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "bb7966d3-6b15-403a-93db-d708cc5e5d9a",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - inbox rules changed from Outlook client"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 72 distinct in 90d (356 raw) = ~0.8/day. Chattier than New-InboxRule because it covers ordinary mail filing"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-13T20:19:48.891Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 1
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:\"UpdateInboxRules\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086",
+   "type": {
+    "name": "notification",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "title": {
+     "@type": "string",
+     "@value": "Mail"
+    },
+    "description": {
+     "@type": "string",
+     "@value": ""
+    },
+    "config": {
+     "type": "email-notification-v1",
+     "sender": {
+      "@type": "string",
+      "@value": ""
+     },
+     "replyTo": {
+      "@type": "string",
+      "@value": ""
+     },
+     "subject": {
+      "@type": "string",
+      "@value": "Graylog event notification: ${event_definition_title}"
+     },
+     "body_template": {
+      "@type": "string",
+      "@value": "--- [Event Definition] ---------------------------\nTitle:       ${event_definition_title}\nDescription: ${event_definition_description}\nType:        ${event_definition_type}\n--- [Event] --------------------------------------\nAlert Replay:         ${http_external_uri}alerts/${event.id}/replay-search\nTimestamp:            ${event.timestamp}\nMessage:              ${event.message}\nSource:               ${event.source}\nKey:                  ${event.key}\nPriority:             ${event.priority}\nAlert:                ${event.alert}\nTimestamp Processing: ${event.timestamp}\nTimerange Start:      ${event.timerange_start}\nTimerange End:        ${event.timerange_end}\nFields:\n${foreach event.fields field}  ${field.key}: ${field.value}\n${end}\n${if backlog}\n--- [What happened] ------------------------------\n${foreach backlog message}\n${if message.fields.Operation}  ${message.fields.Operation}  by  ${message.fields.UserId}\n${end}${if message.fields.ObjectId}      Target:        ${message.fields.ObjectId}\n${end}${if message.fields.DisplayName_NewValue}      Name:          ${message.fields.DisplayName_NewValue}\n${end}${if message.fields.Target_Name}      Target name:   ${message.fields.Target_Name}\n${end}${if message.fields.AppId_NewValue}      App ID:        ${message.fields.AppId_NewValue}\n${end}${if message.fields.Role_DisplayName_NewValue}      Role:          ${message.fields.Role_DisplayName_NewValue}\n${end}${if message.fields.AppRole_Value_NewValue}      Permission:    ${message.fields.AppRole_Value_NewValue}\n${end}${if message.fields.ConsentContext_IsAdminConsent_NewValue}      Admin consent: ${message.fields.ConsentContext_IsAdminConsent_NewValue}\n${end}${if message.fields.Name}      Rule name:     ${message.fields.Name}\n${end}${if message.fields.ForwardTo}      Forward to:    ${message.fields.ForwardTo}\n${end}${if message.fields.RedirectTo}      Redirect to (rule): ${message.fields.RedirectTo}\n${end}${if message.fields.ForwardAsAttachmentTo}      Forward as attach: ${message.fields.ForwardAsAttachmentTo}\n${end}${if message.fields.ForwardingSmtpAddress}      Mailbox forward: ${message.fields.ForwardingSmtpAddress}\n${end}${if message.fields.ForwardingAddress}      Mailbox forward 2: ${message.fields.ForwardingAddress}\n${end}${if message.fields.MoveToFolder}      Move to folder: ${message.fields.MoveToFolder}\n${end}${if message.fields.From}      Rule condition: ${message.fields.From}\n${end}${if message.fields.CopyTo}      Copy to:       ${message.fields.CopyTo}\n${end}${if message.fields.BlindCopyTo}      Bcc to:        ${message.fields.BlindCopyTo}\n${end}${if message.fields.RedirectMessageTo}      Redirect to:   ${message.fields.RedirectMessageTo}\n${end}${if message.fields.Identity}      Mailbox:       ${message.fields.Identity}\n${end}${if message.fields.AuditBypassEnabled}      Audit bypass:  ${message.fields.AuditBypassEnabled}\n${end}${if message.fields.ClientIP}      Client IP:     ${message.fields.ClientIP}\n${end}${if message.fields.ClientIP_country_code}      Country:       ${message.fields.ClientIP_country_code}\n${end}${if message.fields.ClientIP_city_name}      City:          ${message.fields.ClientIP_city_name}\n${end}${if message.fields.SiteUrl}      Site:          ${message.fields.SiteUrl}\n${end}${if message.fields.SourceFileName}      File:          ${message.fields.SourceFileName}\n${end}${if message.fields.additionalDetails_User_Agent}      User agent:    ${message.fields.additionalDetails_User_Agent}\n${end}${if message.fields.ResultStatus}      Result:        ${message.fields.ResultStatus}\n${end}${end}\n${end}\n${if backlog}\n--- [Backlog] ------------------------------------\nLast messages accounting for this alert:\n${foreach backlog message}\n${message}\n${end}\n${end}\n"
+     },
+     "html_body_template": {
+      "@type": "string",
+      "@value": "<table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" style=\"background-color:#f9f9f9;border:none;line-height:1.2\"><tbody>\n<tr style=\"line-height:1.5\"><th colspan=\"2\" style=\"background-color:#e6e6e6\">Event Definition</th></tr>\n<tr><td width=\"200px\">Title</td><td>${event_definition_title}</td></tr>\n<tr><td>Description</td><td>${event_definition_description}</td></tr>\n<tr><td>Type</td><td>${event_definition_type}</td></tr>\n</tbody></table>\n<br /><table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" style=\"background-color:#f9f9f9;border:none;line-height:1.2\"><tbody>\n<tr><th colspan=\"2\" style=\"background-color:#e6e6e6;line-height:1.5\">Event</th></tr>\n<tr><td>Alert Replay</td><td>${http_external_uri}alerts/${event.id}/replay-search</td></tr>\n<tr><td width=\"200px\">Timestamp</td><td>${event.timestamp}</td></tr>\n<tr><td>Message</td><td>${event.message}</td></tr>\n<tr><td>Source</td><td>${event.source}</td></tr>\n<tr><td>Key</td><td>${event.key}</td></tr>\n<tr><td>Priority</td><td>${event.priority}</td></tr>\n<tr><td>Alert</td><td>${event.alert}</td></tr>\n<tr><td>Timestamp Processing</td><td>${event.timestamp}</td></tr>\n<tr><td>Timerange Start</td><td>${event.timerange_start}</td></tr>\n<tr><td>Timerange End</td><td>${event.timerange_end}</td></tr>\n<tr><td>Source Streams</td><td>${event.source_streams}</td></tr>\n<tr><td>Fields</td><td><ul style=\"list-style-type:square;\">${foreach event.fields field}<li>${field.key}:${field.value}</li>${end}<ul></td></tr>\n</tbody></table>\n${if backlog}\n<br /><table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" style=\"background-color:#f9f9f9;border:none;line-height:1.2\"><tbody>\n<tr><th colspan=\"2\" style=\"background-color:#e6e6e6;line-height:1.5\">What happened</th></tr>\n${foreach backlog message}\n${if message.fields.Operation}<tr><td colspan=\"2\" style=\"background-color:#efefef\"><b>${message.fields.Operation}</b> by ${message.fields.UserId}</td></tr>${end}\n${if message.fields.ObjectId}<tr><td width=\"200px\">Target</td><td>${message.fields.ObjectId}</td></tr>${end}\n${if message.fields.DisplayName_NewValue}<tr><td width=\"200px\">Name</td><td>${message.fields.DisplayName_NewValue}</td></tr>${end}\n${if message.fields.Target_Name}<tr><td width=\"200px\">Target name</td><td>${message.fields.Target_Name}</td></tr>${end}\n${if message.fields.AppId_NewValue}<tr><td width=\"200px\">App ID</td><td>${message.fields.AppId_NewValue}</td></tr>${end}\n${if message.fields.Role_DisplayName_NewValue}<tr><td width=\"200px\">Role</td><td>${message.fields.Role_DisplayName_NewValue}</td></tr>${end}\n${if message.fields.AppRole_Value_NewValue}<tr><td width=\"200px\">Permission</td><td>${message.fields.AppRole_Value_NewValue}</td></tr>${end}\n${if message.fields.ConsentContext_IsAdminConsent_NewValue}<tr><td width=\"200px\">Admin consent</td><td>${message.fields.ConsentContext_IsAdminConsent_NewValue}</td></tr>${end}\n${if message.fields.Name}<tr><td width=\"200px\">Rule name</td><td>${message.fields.Name}</td></tr>${end}\n${if message.fields.ForwardTo}<tr><td width=\"200px\">Forward to</td><td>${message.fields.ForwardTo}</td></tr>${end}\n${if message.fields.RedirectTo}<tr><td width=\"200px\">Redirect to (rule)</td><td>${message.fields.RedirectTo}</td></tr>${end}\n${if message.fields.ForwardAsAttachmentTo}<tr><td width=\"200px\">Forward as attach</td><td>${message.fields.ForwardAsAttachmentTo}</td></tr>${end}\n${if message.fields.ForwardingSmtpAddress}<tr><td width=\"200px\">Mailbox forward</td><td>${message.fields.ForwardingSmtpAddress}</td></tr>${end}\n${if message.fields.ForwardingAddress}<tr><td width=\"200px\">Mailbox forward 2</td><td>${message.fields.ForwardingAddress}</td></tr>${end}\n${if message.fields.MoveToFolder}<tr><td width=\"200px\">Move to folder</td><td>${message.fields.MoveToFolder}</td></tr>${end}\n${if message.fields.From}<tr><td width=\"200px\">Rule condition</td><td>${message.fields.From}</td></tr>${end}\n${if message.fields.CopyTo}<tr><td width=\"200px\">Copy to</td><td>${message.fields.CopyTo}</td></tr>${end}\n${if message.fields.BlindCopyTo}<tr><td width=\"200px\">Bcc to</td><td>${message.fields.BlindCopyTo}</td></tr>${end}\n${if message.fields.RedirectMessageTo}<tr><td width=\"200px\">Redirect to</td><td>${message.fields.RedirectMessageTo}</td></tr>${end}\n${if message.fields.Identity}<tr><td width=\"200px\">Mailbox</td><td>${message.fields.Identity}</td></tr>${end}\n${if message.fields.AuditBypassEnabled}<tr><td width=\"200px\">Audit bypass</td><td>${message.fields.AuditBypassEnabled}</td></tr>${end}\n${if message.fields.ClientIP}<tr><td width=\"200px\">Client IP</td><td>${message.fields.ClientIP}</td></tr>${end}\n${if message.fields.ClientIP_country_code}<tr><td width=\"200px\">Country</td><td>${message.fields.ClientIP_country_code}</td></tr>${end}\n${if message.fields.ClientIP_city_name}<tr><td width=\"200px\">City</td><td>${message.fields.ClientIP_city_name}</td></tr>${end}\n${if message.fields.SiteUrl}<tr><td width=\"200px\">Site</td><td>${message.fields.SiteUrl}</td></tr>${end}\n${if message.fields.SourceFileName}<tr><td width=\"200px\">File</td><td>${message.fields.SourceFileName}</td></tr>${end}\n${if message.fields.additionalDetails_User_Agent}<tr><td width=\"200px\">User agent</td><td>${message.fields.additionalDetails_User_Agent}</td></tr>${end}\n${if message.fields.ResultStatus}<tr><td width=\"200px\">Result</td><td>${message.fields.ResultStatus}</td></tr>${end}\n${end}\n</tbody></table>\n${end}\n${if backlog}\n<br /><table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" style=\"background-color:#f9f9f9;border:none;line-height:1.2\"><tbody>\n<tr><th style=\"background-color:#e6e6e6;line-height:1.5\">Backlog (Last messages accounting for this alert)</th></tr>\n${foreach backlog message}\n<tr><td>${message}</td></tr>\n${end}\n</tbody></table>\n${end}\n"
+     },
+     "email_recipients": [],
+     "user_recipients": [],
+     "time_zone": {
+      "@type": "string",
+      "@value": "UTC"
+     },
+     "lookup_recipient_emails": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "recipients_lut_name": {
+      "@type": "string",
+      "@value": ""
+     },
+     "recipients_lut_key": {
+      "@type": "string",
+      "@value": ""
+     },
+     "lookup_sender_email": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "sender_lut_name": {
+      "@type": "string",
+      "@value": ""
+     },
+     "sender_lut_key": {
+      "@type": "string",
+      "@value": ""
+     },
+     "lookup_reply_to_email": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "reply_to_lut_name": {
+      "@type": "string",
+      "@value": ""
+     },
+     "reply_to_lut_key": {
+      "@type": "string",
+      "@value": ""
+     },
+     "single_email": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "cc_users": [],
+     "cc_emails": [],
+     "lookup_cc_emails": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "cc_emails_lut_name": {
+      "@type": "string",
+      "@value": ""
+     },
+     "cc_emails_lut_key": {
+      "@type": "string",
+      "@value": ""
+     },
+     "bcc_users": [],
+     "bcc_emails": [],
+     "lookup_bcc_emails": {
+      "@type": "boolean",
+      "@value": false
+     },
+     "bcc_emails_lut_name": {
+      "@type": "string",
+      "@value": ""
+     },
+     "bcc_emails_lut_key": {
+      "@type": "string",
+      "@value": ""
+     },
+     "include_event_procedures": {
+      "@type": "boolean",
+      "@value": false
+     }
+    }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+   "type": {
+    "name": "stream_title",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "title": {
+     "@type": "string",
+     "@value": "PlainText"
+    }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7",
+   "type": {
+    "name": "stream_title",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "title": {
+     "@type": "string",
+     "@value": "o365-logs"
+    }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  }
+ ]
+}
