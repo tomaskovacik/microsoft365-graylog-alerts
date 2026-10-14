@@ -1,0 +1,48 @@
+{
+ "note": "Create via System > Lookup Tables, or POST these to the API in order.",
+ "cache": {
+  "title": "Microsoft apps cache",
+  "name": "microsoft-apps-cache",
+  "description": "In-memory cache for the Microsoft first-party app list",
+  "config": {
+   "type": "guava_cache",
+   "max_size": 10000,
+   "expire_after_access": 0,
+   "expire_after_access_unit": null,
+   "expire_after_write": 60,
+   "expire_after_write_unit": "MINUTES"
+  }
+ },
+ "data_adapter": {
+  "title": "Microsoft first-party apps",
+  "name": "microsoft-apps",
+  "description": "merill/microsoft-info MicrosoftApps.csv, AppId to AppDisplayName, refreshed hourly",
+  "config": {
+   "type": "dsvhttp",
+   "url": "https://raw.githubusercontent.com/merill/microsoft-info/main/_info/MicrosoftApps.csv",
+   "separator": ",",
+   "line_separator": "\\n",
+   "quotechar": "\"",
+   "ignorechar": "#",
+   "key_column": 0,
+   "value_column": 1,
+   "check_presence_only": false,
+   "refresh_interval": 3600,
+   "case_insensitive_lookup": true
+  }
+ },
+ "lookup_table": {
+  "title": "Microsoft first-party apps",
+  "name": "microsoft-apps",
+  "description": "Resolves an Office 365 ApplicationId to its Microsoft app name",
+  "default_single_value": "",
+  "default_single_value_type": "NULL",
+  "default_multi_value": "",
+  "default_multi_value_type": "NULL"
+ },
+ "url_allowlist_entry": {
+  "type": "literal",
+  "title": "Microsoft first-party app list (merill/microsoft-info)",
+  "value": "https://raw.githubusercontent.com/merill/microsoft-info/main/_info/MicrosoftApps.csv"
+ }
+}

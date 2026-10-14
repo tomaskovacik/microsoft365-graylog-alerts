@@ -260,6 +260,68 @@ which is its main limitation.
 covers `Set-Mailbox` forwarding, which needs no inbox rule and so never
 triggers Microsoft's policy.
 
+## Enrichment (optional, but it unlocks three of the alerts)
+
+Graylog's Threat Intelligence plugin ships with Tor and Spamhaus lists, and a
+public list of Microsoft first-party application ids is maintained at
+[merill/microsoft-info](https://github.com/merill/microsoft-info). The pipeline
+in `pipeline/` wires those into the O365 feed, which turns several manual
+investigations into fields you can alert and chart on:
+
+| field | from | why it matters |
+|---|---|---|
+| `src_is_tor` | Tor exit node list | a sign-in through Tor is otherwise only discoverable by resolving the IP by hand |
+| `src_in_spamhaus_drop` | Spamhaus DROP/EDROP | hijacked or criminal-controlled netblocks |
+| `src_network_owner` | whois, sign-ins only | separates a residential ISP from a rentable VPN range — a user who looks "based in country X" may simply be exiting there |
+| `app_is_microsoft` | the public app list | 4445 apps, refreshed hourly |
+| `app_is_trusted` | your own list, in the rule | non-Microsoft apps you expect: mail clients, backup tools, your own registrations |
+| `ApplicationName` | the public app list | readable names instead of bare GUIDs |
+
+### Installing it
+
+1. **System → Configurations → Threat Intelligence**: enable Tor and Spamhaus.
+2. **System → Configurations → URL Allowlist**: add the CSV url from
+   `lookup/microsoft-apps.json`. Without this the adapter silently fetches
+   nothing — it reports `has_error: false` and simply returns no values, with
+   only a system notification saying *"URL not allowlisted"*.
+3. Create the cache, data adapter and lookup table from
+   `lookup/microsoft-apps.json`.
+4. Create the three rules in `pipeline/` and the pipeline in `pipeline.txt`,
+   then connect it to your O365 stream(s).
+5. Edit the `trusted` line in `30-applications.pipeline-rule` to list the
+   non-Microsoft apps you expect. It ships empty.
+
+Two things that will bite you otherwise:
+
+* **`ClientIP` is not always a bare address.** Exchange admin records carry a
+  port (`20.105.93.26:13872`) and Azure service traffic is often IPv6. The
+  threat-intel rule strips the port from IPv4 only — splitting on `:` would
+  destroy an IPv6 address.
+* **The lookup cache remembers misses.** If you query a key before the adapter
+  has loaded, the null is cached for the cache TTL. Purge the table after
+  fixing the allowlist, or you will think it is still broken.
+
+`whois` is deliberately restricted to `UserLoggedIn`: it is a live lookup, and
+running it on every record rather than a few hundred sign-ins a day is the
+first thing to remove if the pipeline slows.
+
+### Why the trusted list lives in the rule
+
+It is tempting to exclude known apps directly in a dashboard query. One
+production tenant did exactly that and the query grew to **1,005 excluded ids,
+1,006 boolean clauses, 56 KB** — just past OpenSearch's
+`indices.query.bool.max_clause_count` of 1024, at which point the widget failed
+with `query_shard_exception` and every further app made it worse.
+
+With the enrichment in place the same widget is three clauses:
+
+```
+_exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true
+```
+
+Adding a trusted app means editing one line in a pipeline rule instead of
+growing a query without bound.
+
 ## Tools
 
 Not required to run the alerts — Graylog stores them itself. These are for

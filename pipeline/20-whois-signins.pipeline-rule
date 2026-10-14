@@ -1,0 +1,12 @@
+rule "o365 whois enrichment for sign-ins"
+when
+    has_field("ClientIP_clean") && to_string($message.Operation) == "UserLoggedIn"
+then
+    // whois does a LIVE lookup, so this is deliberately restricted to sign-ins
+    // (a few hundred a day) rather than every record (tens of thousands).
+    // The lookup table's cache absorbs repeats. If the pipeline slows, this is
+    // the rule to remove first.
+    let w = lookup("whois", to_string($message.ClientIP_clean));
+    set_field("src_network_owner", w.organization);
+    set_field("src_network_country", w.country_code);
+end

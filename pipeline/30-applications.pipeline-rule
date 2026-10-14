@@ -1,0 +1,22 @@
+rule "o365 application enrichment"
+when
+    has_field("ApplicationId")
+then
+    // Resolve the GUID to a readable name from merill/microsoft-info, which
+    // Graylog refreshes hourly (4445 apps). Also fixes dashboard panels that
+    // would otherwise show bare GUIDs.
+    let app = to_string($message.ApplicationId);
+    let name = lookup_value("microsoft-apps", app);
+    set_field("app_is_microsoft", is_not_null(name));
+    set_field("ApplicationName", to_string(name, to_string($message.ApplicationDisplayName, app)));
+
+    // ---------------------------------------------------------------------
+    // LOCALLY TRUSTED APPS - edit this line to add or remove one.
+    // Comma-separated application ids that are not Microsoft first-party but
+    // are expected here: mail clients, backup tools, your own registrations.
+    // Substring matching is safe because every id is a full 36-char GUID, so
+    // one can never be contained in another.
+    // ---------------------------------------------------------------------
+    let trusted = "";
+    set_field("app_is_trusted", contains(trusted, app));
+end
