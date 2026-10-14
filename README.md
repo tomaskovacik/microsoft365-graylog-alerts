@@ -17,6 +17,9 @@ rest of this README explains why.
 ## Install
 
 1. **System → Content Packs → Upload**, select `content-pack.json`, install.
+   Optionally also `content-pack-dashboard.json` for the five-tab dashboard
+   (threat intel, sign-in geography, admin activity, data movement, pipeline
+   health). Several of its panels need the enrichment pipeline below.
 2. Set the notification recipients — the pack ships with none, deliberately.
 3. Point the definitions at your own stream.
 4. Edit the per-user country exceptions in the two geo alerts. They ship with

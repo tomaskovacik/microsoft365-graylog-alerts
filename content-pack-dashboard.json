@@ -1,0 +1,2893 @@
+{
+ "v": "1",
+ "id": "c7e8d3b1-5a92-4e6f-b0d4-2f8a1c9e7b35",
+ "rev": 1,
+ "name": "Microsoft 365 security dashboard",
+ "summary": "Five-tab dashboard: threat intel, sign-in geography, admin activity, data movement, pipeline health",
+ "description": "Built to complement the alerts rather than repeat them: context for triage, signals too slow to alert on, and feed health that makes silent failures visible.\n\nAfter importing, point the widgets at your own stream(s). Several panels need the enrichment pipeline in pipeline/ - the Threat intel tab and the unrecognised-applications panels are empty without it.\n\nThree deliberate choices worth keeping: every geo panel filters Operation:UserLoggedIn, because ClientIP is whoever called the API and without that filter the maps plot Microsoft datacenters; failed sign-ins filter to LogonError:InvalidUserNameOrPassword, because unfiltered UserLoginFailed is mostly MFA interrupts; and file downloads are charted over time rather than ranked, because exfiltration is a spike.",
+ "vendor": "community",
+ "url": "https://github.com/tomaskovacik/microsoft365-graylog-alerts",
+ "parameters": [],
+ "entities": [
+  {
+   "id": "a745fcca-4d7c-4fed-a627-e28204ef5235",
+   "type": {
+    "name": "dashboard",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "type": "DASHBOARD",
+    "title": {
+     "@type": "string",
+     "@value": "Microsoft 365 security"
+    },
+    "summary": {
+     "@type": "string",
+     "@value": "Threat intel, sign-in geography, admin activity and pipeline health"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Built to complement the 30 alerts rather than repeat them: context for triage, signals too slow for alerting, and the feed health that makes silent failures visible."
+    },
+    "search": {
+     "queries": [
+      {
+       "id": "52ddbf66-3204-4fd1-bb0a-d46e5ae4a8c9",
+       "timerange": {
+        "from": 2592000,
+        "type": "relative"
+       },
+       "filters": [],
+       "query": {
+        "type": "elasticsearch",
+        "query_string": ""
+       },
+       "search_types": [
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "src_is_tor:true"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "348299c7-edc9-4c86-9136-3d9a73a4590d",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "src_is_tor:true"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "80b97ce5-bbda-44dd-8125-6b4f57d76728",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "src_in_spamhaus_drop:true"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "a8c1477f-cbc1-4080-b22d-1563f39c826d",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "_exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true AND _exists_:app_is_trusted"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "3d60a225-13c6-4b86-9df2-d453f5df1152",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "ApplicationName"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:UserLoggedIn AND _exists_:src_network_owner"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "ad8fb992-f531-4d2a-ad2d-ddaec1ec9893",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "src_network_owner"
+           ],
+           "limit": 25,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "_exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true AND _exists_:app_is_trusted"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "417e12dd-0518-44b6-8c44-07a9c60d9967",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "ApplicationName"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          },
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        }
+       ]
+      },
+      {
+       "id": "c8840c57-6569-45fe-a9d2-caae1fc85373",
+       "timerange": {
+        "from": 2592000,
+        "type": "relative"
+       },
+       "filters": [],
+       "query": {
+        "type": "elasticsearch",
+        "query_string": ""
+       },
+       "search_types": [
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_geolocation"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "6a57aec4-5e60-411f-87ad-a2c08a425abf",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "ClientIP_geolocation"
+           ],
+           "limit": 200,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "8e55de28-dc7f-43e5-bcae-3ce05931cad7",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "ClientIP_country_code"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "94e7ce89-4866-4464-bccd-76b85102452a",
+         "name": "chart",
+         "series": [
+          {
+           "type": "card",
+           "id": "card(ClientIP_country_code)",
+           "field": "ClientIP_country_code"
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 30,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:UserLoginFailed AND LogonError:InvalidUserNameOrPassword"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "430718ba-5941-4518-8325-ab1e61c38789",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "ClientIP_country_code"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 604800,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:(UserLoggedIn OR UserLoginFailed)"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "be66a96b-3338-4f2b-bda9-265a9a7ace47",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "Operation"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        }
+       ]
+      },
+      {
+       "id": "e7868c55-a514-4f29-9acc-713f0d6b3520",
+       "timerange": {
+        "from": 2592000,
+        "type": "relative"
+       },
+       "filters": [],
+       "query": {
+        "type": "elasticsearch",
+        "query_string": ""
+       },
+       "search_types": [
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "RecordType:1"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "deaa4877-8cda-412e-b077-dc7ef7181b06",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 25,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "OriginFeed:Audit.AzureActiveDirectory AND Operation:(\"Add user.\" OR \"Add group.\" OR \"Add member to role.\" OR \"Add application.\" OR \"Update user.\")"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "621ede9d-1023-44e8-87e4-6c7c916290d5",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "Operation"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:(\"Consent to application.\" OR \"Add delegated permission grant.\" OR \"Add app role assignment to service principal.\")"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "2f351ead-97db-4a44-a03f-33dcf8de1b0e",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "Operation"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "RecordType:1"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "cb9bec7f-9f75-4622-9ef4-2897e52a1288",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "Operation"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        }
+       ]
+      },
+      {
+       "id": "a2b63673-5367-4bc7-828b-e5b497f4f48b",
+       "timerange": {
+        "from": 2592000,
+        "type": "relative"
+       },
+       "filters": [],
+       "query": {
+        "type": "elasticsearch",
+        "query_string": ""
+       },
+       "search_types": [
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:FileDownloaded"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "8504ee03-5425-4367-9b74-81906bc9b7c6",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 25,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:(\"AnonymousLinkCreated\" OR \"AddedToSecureLink\" OR \"AddedToSharingLink\" OR \"SharingInvitationCreated\")"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "59919e47-7f58-4c41-b2ad-5f6b0b63174c",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:FileDownloaded"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "a19a6fc0-5df9-4b37-bcc2-1b4077b61c3e",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 2592000,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "Operation:MailItemsAccessed"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "82c59bf1-cd5e-4ab8-a1de-11696097c85b",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "UserId"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        }
+       ]
+      },
+      {
+       "id": "2c819d60-1fbf-45df-b9aa-96e275ece628",
+       "timerange": {
+        "from": 2592000,
+        "type": "relative"
+       },
+       "filters": [],
+       "query": {
+        "type": "elasticsearch",
+        "query_string": ""
+       },
+       "search_types": [
+        {
+         "timerange": {
+          "from": 604800,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "_exists_:ClientIP"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "718d3371-2421-4c95-bebd-0a39032e6852",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "src_is_tor"
+           ],
+           "limit": 10,
+           "skip_empty_values": true
+          }
+         ],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 604800,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "NOT OriginFeed:UALGraph"
+         },
+         "streams": [
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "f7c3a2a5-1808-4d1c-840f-bf5293c149ab",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 604800,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "*"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98"
+         ],
+         "stream_categories": [],
+         "id": "01df6af3-825d-4675-bb94-df91fc68bbaf",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "time",
+           "fields": [
+            "timestamp"
+           ],
+           "interval": {
+            "type": "auto",
+            "scaling": 1.0
+           }
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        },
+        {
+         "timerange": {
+          "from": 604800,
+          "type": "relative"
+         },
+         "query": {
+          "type": "elasticsearch",
+          "query_string": "*"
+         },
+         "streams": [
+          "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+          "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+         ],
+         "stream_categories": [],
+         "id": "b6924c66-d0e1-441c-a8a8-05a8af38b73c",
+         "name": "chart",
+         "series": [
+          {
+           "type": "count",
+           "id": "count()",
+           "field": null
+          }
+         ],
+         "sort": [],
+         "rollup": true,
+         "type": "pivot",
+         "row_groups": [
+          {
+           "type": "values",
+           "fields": [
+            "OriginFeed"
+           ],
+           "limit": 20,
+           "skip_empty_values": true
+          }
+         ],
+         "column_groups": [],
+         "filter": null,
+         "filters": [],
+         "row_limit": null,
+         "column_limit": null
+        }
+       ]
+      }
+     ],
+     "parameters": [],
+     "requires": {},
+     "owner": "kovo",
+     "created_at": "2026-10-14T20:31:23.021Z"
+    },
+    "properties": [],
+    "requires": {},
+    "state": {
+     "52ddbf66-3204-4fd1-bb0a-d46e5ae4a8c9": {
+      "selected_fields": null,
+      "static_message_list_id": null,
+      "titles": {
+       "widget": {
+        "3f215a7d-970b-4078-982c-68489a99eeb6": "Tor activity over time",
+        "cba4f6cb-776f-4310-822f-d963ea75afa6": "Tor activity by user",
+        "be3a3e9b-6832-47e9-9494-11fd3b5f16f5": "Sign-ins by network owner",
+        "97280239-16fe-40b6-8aab-5f99b6ae52fd": "Spamhaus DROP hits",
+        "8aeeb7cf-2120-4fac-a7d8-043d102aaf98": "Unrecognised applications",
+        "972d4ead-6d3e-4b25-aaf3-0aa46f8819eb": "Unrecognised apps by user"
+       },
+       "tab": {
+        "title": "Threat intel"
+       }
+      },
+      "widgets": [
+       {
+        "id": "3f215a7d-970b-4078-982c-68489a99eeb6",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "src_is_tor:true"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": null
+        },
+        "description": "Needs the 'O365 enrichment' pipeline. Empty until new data arrives.",
+        "context": null
+       },
+       {
+        "id": "972d4ead-6d3e-4b25-aaf3-0aa46f8819eb",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "_exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true AND _exists_:app_is_trusted"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "ApplicationName"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          },
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "Who is using them.",
+        "context": null
+       },
+       {
+        "id": "97280239-16fe-40b6-8aab-5f99b6ae52fd",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "src_in_spamhaus_drop:true"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "cba4f6cb-776f-4310-822f-d963ea75afa6",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "src_is_tor:true"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "be3a3e9b-6832-47e9-9494-11fd3b5f16f5",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:UserLoggedIn AND _exists_:src_network_owner"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "src_network_owner"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 25,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 25,
+         "column_limit": null
+        },
+        "description": "Hosting providers here mean a VPN, not a home ISP - the geo rules cannot protect those accounts.",
+        "context": null
+       },
+       {
+        "id": "8aeeb7cf-2120-4fac-a7d8-043d102aaf98",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "_exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true AND _exists_:app_is_trusted"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "ApplicationName"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "Apps that are neither Microsoft first-party nor locally trusted. Edit the trusted list in the \"o365 application enrichment\" pipeline rule, not in this query.",
+        "context": null
+       }
+      ],
+      "widget_mapping": {
+       "3f215a7d-970b-4078-982c-68489a99eeb6": [
+        "80b97ce5-bbda-44dd-8125-6b4f57d76728"
+       ],
+       "cba4f6cb-776f-4310-822f-d963ea75afa6": [
+        "348299c7-edc9-4c86-9136-3d9a73a4590d"
+       ],
+       "be3a3e9b-6832-47e9-9494-11fd3b5f16f5": [
+        "ad8fb992-f531-4d2a-ad2d-ddaec1ec9893"
+       ],
+       "97280239-16fe-40b6-8aab-5f99b6ae52fd": [
+        "a8c1477f-cbc1-4080-b22d-1563f39c826d"
+       ],
+       "8aeeb7cf-2120-4fac-a7d8-043d102aaf98": [
+        "3d60a225-13c6-4b86-9df2-d453f5df1152"
+       ],
+       "972d4ead-6d3e-4b25-aaf3-0aa46f8819eb": [
+        "417e12dd-0518-44b6-8c44-07a9c60d9967"
+       ]
+      },
+      "positions": {
+       "3f215a7d-970b-4078-982c-68489a99eeb6": {
+        "col": 1,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "cba4f6cb-776f-4310-822f-d963ea75afa6": {
+        "col": 7,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "be3a3e9b-6832-47e9-9494-11fd3b5f16f5": {
+        "col": 1,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "97280239-16fe-40b6-8aab-5f99b6ae52fd": {
+        "col": 7,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "8aeeb7cf-2120-4fac-a7d8-043d102aaf98": {
+        "col": 1,
+        "row": 9,
+        "height": 4,
+        "width": 6
+       },
+       "972d4ead-6d3e-4b25-aaf3-0aa46f8819eb": {
+        "col": 7,
+        "row": 9,
+        "height": 4,
+        "width": 6
+       }
+      },
+      "formatting": {
+       "highlighting": []
+      },
+      "display_mode_settings": {
+       "positions": {}
+      }
+     },
+     "c8840c57-6569-45fe-a9d2-caae1fc85373": {
+      "selected_fields": null,
+      "static_message_list_id": null,
+      "titles": {
+       "widget": {
+        "44a6cea5-331f-4e00-a567-7b3362f73bc6": "Sign-ins by country over time",
+        "7aabaeba-89de-4461-996b-5b774029ce3c": "Countries per user",
+        "69398b84-6878-4f30-9efc-c75a4dd43f01": "Sign-in map",
+        "80c5011d-caf4-4af6-8f91-67d594f79f53": "Failed sign-ins by country",
+        "15ca3298-9293-4ca8-b194-f91db5f56ab0": "Sign-ins over time: successful vs failed"
+       },
+       "tab": {
+        "title": "Sign-in geography"
+       }
+      },
+      "widgets": [
+       {
+        "id": "69398b84-6878-4f30-9efc-c75a4dd43f01",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_geolocation"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "ClientIP_geolocation"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 200,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "map",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 200,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "44a6cea5-331f-4e00-a567-7b3362f73bc6",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "ClientIP_country_code"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "Filtered to UserLoggedIn on purpose: without it this plots Microsoft datacenters.",
+        "context": null
+       },
+       {
+        "id": "80c5011d-caf4-4af6-8f91-67d594f79f53",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:UserLoginFailed AND LogonError:InvalidUserNameOrPassword"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "ClientIP_country_code"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "Bad passwords only. Unfiltered UserLoginFailed is mostly MFA interrupts.",
+        "context": null
+       },
+       {
+        "id": "7aabaeba-89de-4461-996b-5b774029ce3c",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:UserLoggedIn AND _exists_:ClientIP_country_code"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 30,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "card(ClientIP_country_code)"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 30,
+         "column_limit": null
+        },
+        "description": "A user who is normally 1 suddenly showing 3 is the signal.",
+        "context": null
+       },
+       {
+        "id": "15ca3298-9293-4ca8-b194-f91db5f56ab0",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 604800,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:(UserLoggedIn OR UserLoginFailed)"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "Operation"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "line",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": false,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "Successful vs failed sign-ins over time. rollup is off so the two operations draw as separate lines. Note UserLoginFailed counts MFA interrupts, not just bad passwords - a spike is usually an auth prompt storm, not an attack.",
+        "context": null
+       }
+      ],
+      "widget_mapping": {
+       "44a6cea5-331f-4e00-a567-7b3362f73bc6": [
+        "8e55de28-dc7f-43e5-bcae-3ce05931cad7"
+       ],
+       "7aabaeba-89de-4461-996b-5b774029ce3c": [
+        "94e7ce89-4866-4464-bccd-76b85102452a"
+       ],
+       "69398b84-6878-4f30-9efc-c75a4dd43f01": [
+        "6a57aec4-5e60-411f-87ad-a2c08a425abf"
+       ],
+       "80c5011d-caf4-4af6-8f91-67d594f79f53": [
+        "430718ba-5941-4518-8325-ab1e61c38789"
+       ],
+       "15ca3298-9293-4ca8-b194-f91db5f56ab0": [
+        "be66a96b-3338-4f2b-bda9-265a9a7ace47"
+       ]
+      },
+      "positions": {
+       "7aabaeba-89de-4461-996b-5b774029ce3c": {
+        "col": 7,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "15ca3298-9293-4ca8-b194-f91db5f56ab0": {
+        "col": 1,
+        "row": 1,
+        "height": 4,
+        "width": "Infinity"
+       },
+       "80c5011d-caf4-4af6-8f91-67d594f79f53": {
+        "col": 7,
+        "row": 9,
+        "height": 4,
+        "width": 6
+       },
+       "44a6cea5-331f-4e00-a567-7b3362f73bc6": {
+        "col": 1,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "69398b84-6878-4f30-9efc-c75a4dd43f01": {
+        "col": 1,
+        "row": 9,
+        "height": 4,
+        "width": 6
+       }
+      },
+      "formatting": {
+       "highlighting": []
+      },
+      "display_mode_settings": {
+       "positions": {}
+      }
+     },
+     "e7868c55-a514-4f29-9acc-713f0d6b3520": {
+      "selected_fields": null,
+      "static_message_list_id": null,
+      "titles": {
+       "widget": {
+        "93337bfd-5259-4dbb-a79f-572fe70674df": "Exchange admin cmdlets over time",
+        "6ab70dc9-e657-4c42-8785-d54b220cda73": "Admin operations by actor",
+        "54c37f6d-478c-468b-8eac-9aefc4ed090e": "Entra directory changes",
+        "3cd8a817-815f-4745-9328-1489b8d79be1": "Consent and permission grants"
+       },
+       "tab": {
+        "title": "Admin activity"
+       }
+      },
+      "widgets": [
+       {
+        "id": "93337bfd-5259-4dbb-a79f-572fe70674df",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "RecordType:1"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "Operation"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "3cd8a817-815f-4745-9328-1489b8d79be1",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:(\"Consent to application.\" OR \"Add delegated permission grant.\" OR \"Add app role assignment to service principal.\")"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "Operation"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "6ab70dc9-e657-4c42-8785-d54b220cda73",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "RecordType:1"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 25,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 25,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "54c37f6d-478c-468b-8eac-9aefc4ed090e",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "OriginFeed:Audit.AzureActiveDirectory AND Operation:(\"Add user.\" OR \"Add group.\" OR \"Add member to role.\" OR \"Add application.\" OR \"Update user.\")"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "Operation"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       }
+      ],
+      "widget_mapping": {
+       "93337bfd-5259-4dbb-a79f-572fe70674df": [
+        "cb9bec7f-9f75-4622-9ef4-2897e52a1288"
+       ],
+       "6ab70dc9-e657-4c42-8785-d54b220cda73": [
+        "deaa4877-8cda-412e-b077-dc7ef7181b06"
+       ],
+       "54c37f6d-478c-468b-8eac-9aefc4ed090e": [
+        "621ede9d-1023-44e8-87e4-6c7c916290d5"
+       ],
+       "3cd8a817-815f-4745-9328-1489b8d79be1": [
+        "2f351ead-97db-4a44-a03f-33dcf8de1b0e"
+       ]
+      },
+      "positions": {
+       "93337bfd-5259-4dbb-a79f-572fe70674df": {
+        "col": 1,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "6ab70dc9-e657-4c42-8785-d54b220cda73": {
+        "col": 7,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "54c37f6d-478c-468b-8eac-9aefc4ed090e": {
+        "col": 1,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "3cd8a817-815f-4745-9328-1489b8d79be1": {
+        "col": 7,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       }
+      },
+      "formatting": {
+       "highlighting": []
+      },
+      "display_mode_settings": {
+       "positions": {}
+      }
+     },
+     "a2b63673-5367-4bc7-828b-e5b497f4f48b": {
+      "selected_fields": null,
+      "static_message_list_id": null,
+      "titles": {
+       "widget": {
+        "b9f77b77-9a94-40cf-90ad-6922003928e7": "File downloads over time",
+        "d2fde16d-ad6e-4fab-a021-bebb667fc914": "Downloads by user",
+        "b9ebc201-0a68-4cf8-9648-4acec6dcf2bc": "Mailbox access volume",
+        "2e37bc68-4017-4dff-bbe5-7ddbc2276990": "Sharing links created"
+       },
+       "tab": {
+        "title": "Data movement"
+       }
+      },
+      "widgets": [
+       {
+        "id": "d2fde16d-ad6e-4fab-a021-bebb667fc914",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:FileDownloaded"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 25,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 25,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "b9ebc201-0a68-4cf8-9648-4acec6dcf2bc",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:MailItemsAccessed"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "b9f77b77-9a94-40cf-90ad-6922003928e7",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:FileDownloaded"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": null
+        },
+        "description": "Exfiltration shows as a spike, which a pie chart cannot show at all.",
+        "context": null
+       },
+       {
+        "id": "2e37bc68-4017-4dff-bbe5-7ddbc2276990",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 2592000,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "Operation:(\"AnonymousLinkCreated\" OR \"AddedToSecureLink\" OR \"AddedToSharingLink\" OR \"SharingInvitationCreated\")"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "UserId"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       }
+      ],
+      "widget_mapping": {
+       "b9f77b77-9a94-40cf-90ad-6922003928e7": [
+        "a19a6fc0-5df9-4b37-bcc2-1b4077b61c3e"
+       ],
+       "d2fde16d-ad6e-4fab-a021-bebb667fc914": [
+        "8504ee03-5425-4367-9b74-81906bc9b7c6"
+       ],
+       "b9ebc201-0a68-4cf8-9648-4acec6dcf2bc": [
+        "82c59bf1-cd5e-4ab8-a1de-11696097c85b"
+       ],
+       "2e37bc68-4017-4dff-bbe5-7ddbc2276990": [
+        "59919e47-7f58-4c41-b2ad-5f6b0b63174c"
+       ]
+      },
+      "positions": {
+       "b9f77b77-9a94-40cf-90ad-6922003928e7": {
+        "col": 1,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "d2fde16d-ad6e-4fab-a021-bebb667fc914": {
+        "col": 7,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "b9ebc201-0a68-4cf8-9648-4acec6dcf2bc": {
+        "col": 1,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "2e37bc68-4017-4dff-bbe5-7ddbc2276990": {
+        "col": 7,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       }
+      },
+      "formatting": {
+       "highlighting": []
+      },
+      "display_mode_settings": {
+       "positions": {}
+      }
+     },
+     "2c819d60-1fbf-45df-b9aa-96e275ece628": {
+      "selected_fields": null,
+      "static_message_list_id": null,
+      "titles": {
+       "widget": {
+        "857fb8d3-e7c7-4aeb-b1aa-5c935376427a": "Records per hour, plaintext",
+        "ec1ff078-ef27-430d-a371-6a87e672c8ec": "Records per hour, GELF",
+        "991349be-915e-43a8-bd23-89e29b5e5594": "Volume by feed",
+        "a4a8bb53-9f26-4bfb-8c56-834df821a6ea": "Enrichment coverage"
+       },
+       "tab": {
+        "title": "Pipeline health"
+       }
+      },
+      "widgets": [
+       {
+        "id": "991349be-915e-43a8-bd23-89e29b5e5594",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 604800,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "*"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "OriginFeed"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 20,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "table",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": 20,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "ec1ff078-ef27-430d-a371-6a87e672c8ec",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 604800,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "NOT OriginFeed:UALGraph"
+        },
+        "streams": [
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": null
+        },
+        "description": "",
+        "context": null
+       },
+       {
+        "id": "a4a8bb53-9f26-4bfb-8c56-834df821a6ea",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 604800,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "_exists_:ClientIP"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+         "36e4c150-c86d-45fe-8eb4-ab15528049d5"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [
+          {
+           "fields": [
+            "src_is_tor"
+           ],
+           "type": "values",
+           "config": {
+            "limit": 10,
+            "skip_empty_values": true
+           }
+          }
+         ],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": 10
+        },
+        "description": "Records with a ClientIP, split by whether the pipeline enriched them.",
+        "context": null
+       },
+       {
+        "id": "857fb8d3-e7c7-4aeb-b1aa-5c935376427a",
+        "type": "aggregation",
+        "filter": null,
+        "filters": [],
+        "timerange": {
+         "from": 604800,
+         "type": "relative"
+        },
+        "query": {
+         "type": "elasticsearch",
+         "query_string": "*"
+        },
+        "streams": [
+         "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98"
+        ],
+        "stream_categories": [],
+        "config": {
+         "row_pivots": [
+          {
+           "fields": [
+            "timestamp"
+           ],
+           "type": "time",
+           "config": {
+            "interval": {
+             "type": "auto",
+             "scaling": 1.0
+            }
+           }
+          }
+         ],
+         "units": {},
+         "column_pivots": [],
+         "series": [
+          {
+           "config": {
+            "name": null,
+            "thresholds": []
+           },
+           "function": "count()"
+          }
+         ],
+         "sort": [],
+         "visualization": "bar",
+         "visualization_config": null,
+         "formatting_settings": null,
+         "rollup": true,
+         "event_annotation": false,
+         "row_limit": null,
+         "column_limit": null
+        },
+        "description": "Liveness alert fires at 0 for 2h. Measured floor was 10/hour.",
+        "context": null
+       }
+      ],
+      "widget_mapping": {
+       "857fb8d3-e7c7-4aeb-b1aa-5c935376427a": [
+        "01df6af3-825d-4675-bb94-df91fc68bbaf"
+       ],
+       "ec1ff078-ef27-430d-a371-6a87e672c8ec": [
+        "f7c3a2a5-1808-4d1c-840f-bf5293c149ab"
+       ],
+       "991349be-915e-43a8-bd23-89e29b5e5594": [
+        "b6924c66-d0e1-441c-a8a8-05a8af38b73c"
+       ],
+       "a4a8bb53-9f26-4bfb-8c56-834df821a6ea": [
+        "718d3371-2421-4c95-bebd-0a39032e6852"
+       ]
+      },
+      "positions": {
+       "857fb8d3-e7c7-4aeb-b1aa-5c935376427a": {
+        "col": 1,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "ec1ff078-ef27-430d-a371-6a87e672c8ec": {
+        "col": 7,
+        "row": 1,
+        "height": 4,
+        "width": 6
+       },
+       "991349be-915e-43a8-bd23-89e29b5e5594": {
+        "col": 1,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       },
+       "a4a8bb53-9f26-4bfb-8c56-834df821a6ea": {
+        "col": 7,
+        "row": 5,
+        "height": 4,
+        "width": 6
+       }
+      },
+      "formatting": {
+       "highlighting": []
+      },
+      "display_mode_settings": {
+       "positions": {}
+      }
+     }
+    },
+    "owner": "kovo",
+    "created_at": "2026-10-14T18:45:05.212Z"
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "fc0c7e21-afbd-4456-a1d3-67b4e67d4e98",
+   "type": {
+    "name": "stream_title",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "title": {
+     "@type": "string",
+     "@value": "PlainText"
+    }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "36e4c150-c86d-45fe-8eb4-ab15528049d5",
+   "type": {
+    "name": "stream_title",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "title": {
+     "@type": "string",
+     "@value": "o365-logs"
+    }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  }
+ ]
+}
