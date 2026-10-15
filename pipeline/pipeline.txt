@@ -2,6 +2,7 @@ pipeline "O365 enrichment"
 stage 0 match either
   rule "o365 threat intel enrichment";
   rule "o365 application enrichment";
+  rule "o365 mfa method change detection";
 stage 1 match either
   rule "o365 whois enrichment for sign-ins";
 end

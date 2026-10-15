@@ -47,7 +47,7 @@
      "type": "aggregation-v1",
      "query": {
       "@type": "string",
-      "@value": "Operation:\"Update user.\" AND _exists_:StrongAuthenticationPhoneAppDetail_NewValue_Id"
+      "@value": "Operation:\"Update user.\" AND mfa_methods_changed:true"
      },
      "query_parameters": [],
      "filters": [],

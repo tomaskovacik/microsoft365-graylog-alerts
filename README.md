@@ -25,6 +25,11 @@ rest of this README explains why.
 4. Edit the per-user country exceptions in the two geo alerts. They ship with
    `example.com` placeholders so that an unedited import cannot silently
    inherit someone else's assumptions.
+5. **`O365 - MFA method changed` is the one alert that will not work from the
+   content pack alone.** Its query is `mfa_methods_changed:true`, a field that
+   only the enrichment pipeline produces, so without step 4 of
+   [Installing it](#installing-it) the alert never fires and never errors.
+   Failure mode 10 explains why the query cannot be written without it.
 
 Then, before trusting any of it, read the next section.
 
@@ -43,7 +48,7 @@ match nothing at all. See failure mode 8.
 | alert | prio | catches | baseline |
 |---|---|---|---|
 | mail forwarding configured | 3 | `ForwardTo`/`RedirectTo` on an inbox rule, and `Set-Mailbox` forwarding — the vector needing no rule at all | 4 / 90d **flat** |
-| MFA method changed | 3 | authenticator added or removed. Entra's own "security info" events never reach this API; they arrive as `Update user.` | 13 / 90d **flat** |
+| MFA method changed | 3 | authenticator genuinely added or removed. Entra's own "security info" events never reach this API; they arrive as `Update user.`, and must be filtered against plain MFA *logins* — see failure mode 10 | 2 / 90d **flat** |
 | inbox rule created or modified | 2 | `New-InboxRule`, `Set-InboxRule` — classic BEC persistence | 25 / 90d |
 | inbox rules changed from Outlook client | 1 | `UpdateInboxRules`, which the alert above does not see | 72 / 90d |
 | mailbox delegation granted | 3 | FullAccess and SendAs: reading a mailbox without touching its password | ~3 / 90d |
@@ -246,6 +251,63 @@ was 5, which is what makes a threshold of 10 meaningful.
 Password spray is measured the other way — distinct accounts failing from one
 source IP, where the observed maximum was 1.
 
+### 10. The presence of a field is not the same as a change to it
+
+Entra rewrites the **entire** `StrongAuthenticationPhoneAppDetail` block on an
+`Operation:"Update user."` record every time somebody merely *authenticates*
+with the Authenticator app — purely to bump `LastAuthenticatedTimestamp`, and
+`PhoneAppVersion` when the app self-updates. On the reference tenant that was
+**16 of 18 records over 90 days**, so the obvious query
+
+```
+Operation:"Update user." AND _exists_:StrongAuthenticationPhoneAppDetail_NewValue_Id
+```
+
+actually means *"someone used MFA successfully"*, not *"someone's MFA changed"*.
+In the noise records the method set is byte-identical — same `_Id`, same
+`_DeviceId`, same `_DeviceName`, same `_count`.
+
+Worse, Entra **permutes the order of every sub-array** while rewriting it. A
+single real login produced:
+
+```
+OldValue_Id         = aaaaaaaa…, bbbbbbbb…, cccccccc…
+NewValue_Id         = bbbbbbbb…, aaaaaaaa…, cccccccc…
+OldValue_DeviceName = NO_DEVICE, PHONE-A, PHONE-B
+NewValue_DeviceName = PHONE-A, NO_DEVICE, PHONE-B
+```
+
+Same methods, same `_count`, different order. So the next-most-obvious fix —
+comparing `OldValue_Id != NewValue_Id` as strings — reports a change on *every*
+login, and comparing `_count` instead silently misses a same-size **swap**,
+which is the actual attack shape: one authenticator replaced by another while
+the count never moves.
+
+The lists have to be compared as **sets**. Lucene cannot compare two fields at
+all, and the pipeline rule language has no loop or list-index construct, so
+`pipeline/40-mfa-method-change.pipeline-rule` does it with regex instead: turn
+one list into an alternation (`a|b|c`), strip every one of its Ids out of the
+other list, and whatever survives — once separators are removed — is an Id in
+one list but not the other. Run both directions, and you get add and remove
+independently, with no dependence on ordering or on `_count`:
+
+```
+let alt_old = regex_replace(",\\s*", old_ids, "|", true);
+let added   = regex_replace("[,\\s|]", regex_replace(alt_old, new_ids, "", true), "", true);
+```
+
+An absent side normalises to `""`, whose alternation matches only the empty
+string, so the other side survives whole — which is why first enrollment
+reports `added` and removal-of-everything reports `removed`, with no special
+casing.
+
+Verified against 90 days of real records: string comparison flags **3**
+(2 genuine + 1 login), set comparison flags exactly the **2 genuine** changes.
+
+The same trap applies to any audit feed that ships a whole property bag on
+every touch. Diff the values as sets; do not test for the key, and do not
+assume the provider preserves array order.
+
 ## What Microsoft already covers
 
 Before building a detection, check whether Purview already has it. Microsoft's
@@ -263,7 +325,7 @@ which is its main limitation.
 covers `Set-Mailbox` forwarding, which needs no inbox rule and so never
 triggers Microsoft's policy.
 
-## Enrichment (optional, but it unlocks three of the alerts)
+## Enrichment (optional, but it unlocks four of the alerts)
 
 Graylog's Threat Intelligence plugin ships with Tor and Spamhaus lists, and a
 public list of Microsoft first-party application ids is maintained at
@@ -279,6 +341,8 @@ investigations into fields you can alert and chart on:
 | `app_is_microsoft` | the public app list | 4445 apps, refreshed hourly |
 | `app_is_trusted` | your own list, in the rule | non-Microsoft apps you expect: mail clients, backup tools, your own registrations |
 | `ApplicationName` | the public app list | readable names instead of bare GUIDs |
+| `mfa_methods_changed` | set-diff of the MFA Id lists | separates a genuine MFA add/remove/swap from a plain Authenticator login, which Entra logs identically — see failure mode 10 |
+| `mfa_method_added` / `mfa_method_removed` | same | which direction it went, so a swap is visible as both at once |
 
 ### Installing it
 
@@ -289,7 +353,7 @@ investigations into fields you can alert and chart on:
    only a system notification saying *"URL not allowlisted"*.
 3. Create the cache, data adapter and lookup table from
    `lookup/microsoft-apps.json`.
-4. Create the three rules in `pipeline/` and the pipeline in `pipeline.txt`,
+4. Create the four rules in `pipeline/` and the pipeline in `pipeline.txt`,
    then connect it to your O365 stream(s).
 5. Edit the `trusted` line in `30-applications.pipeline-rule` to list the
    non-Microsoft apps you expect. It ships empty.

@@ -1,0 +1,45 @@
+rule "o365 mfa method change detection"
+when
+  has_field("StrongAuthenticationPhoneAppDetail_NewValue_Id")
+  OR has_field("StrongAuthenticationPhoneAppDetail_OldValue_Id")
+then
+  // Entra emits Operation:"Update user." carrying the whole
+  // StrongAuthenticationPhoneAppDetail block every time somebody simply
+  // AUTHENTICATES with the Authenticator app - it rewrites the record only to
+  // bump LastAuthenticatedTimestamp (and PhoneAppVersion when the app
+  // self-updates). Over 90 days on this tenant that was 16 of 18 records.
+  //
+  // Worse, it PERMUTES the order of every sub-array while doing so, e.g.
+  //   OldValue_Id = aaaaaaaa, bbbbbbbb, cccccccc
+  //   NewValue_Id = bbbbbbbb, aaaaaaaa, cccccccc
+  // so comparing the Id lists AS STRINGS reports a change on every login, and
+  // comparing _count misses a same-size swap. The lists must be compared as
+  // SETS, which Lucene cannot do at all and which the rule language has no
+  // loop or list-index construct for either.
+  //
+  // So: turn one list into an alternation regex ("a|b|c"), strip every one of
+  // its Ids out of the other list, and whatever survives - once separators are
+  // removed - is an Id present in one list but not the other. Done both ways
+  // it yields add and remove independently, with no dependency on ordering or
+  // on Entra's _count fields.
+  let old_raw = to_string($message.StrongAuthenticationPhoneAppDetail_OldValue_Id, "");
+  let new_raw = to_string($message.StrongAuthenticationPhoneAppDetail_NewValue_Id, "");
+  // Trim stray edge separators, so neither alternation gets an empty branch
+  // (an empty branch matches at every position and would strip nothing).
+  let old_ids = regex_replace("^[,\\s]+|[,\\s]+$", old_raw, "", true);
+  let new_ids = regex_replace("^[,\\s]+|[,\\s]+$", new_raw, "", true);
+  let alt_old = regex_replace(",\\s*", old_ids, "|", true);
+  let alt_new = regex_replace(",\\s*", new_ids, "|", true);
+  // An absent side normalises to "", whose alternation is "" - that matches
+  // only the empty string, so the other side survives whole. First enrollment
+  // therefore reports added, and removal-of-everything reports removed.
+  let added   = regex_replace("[,\\s|]", regex_replace(alt_old, new_ids, "", true), "", true);
+  let removed = regex_replace("[,\\s|]", regex_replace(alt_new, old_ids, "", true), "", true);
+  set_field("mfa_method_ids_old", old_ids);
+  set_field("mfa_method_ids_new", new_ids);
+  set_field("mfa_method_count_old", to_long($message.StrongAuthenticationPhoneAppDetail_OldValue_count, 0));
+  set_field("mfa_method_count_new", to_long($message.StrongAuthenticationPhoneAppDetail_NewValue_count, 0));
+  set_field("mfa_method_added", added != "");
+  set_field("mfa_method_removed", removed != "");
+  set_field("mfa_methods_changed", added != "" OR removed != "");
+end
