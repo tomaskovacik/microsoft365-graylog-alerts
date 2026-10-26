@@ -3,3 +3,8 @@ tools/config.py
 tools/.gltok
 __pycache__/
 *.pyc
+
+# editor swap files
+*.swp
+*.swo
+*~
