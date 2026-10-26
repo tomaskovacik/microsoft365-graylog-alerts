@@ -1,0 +1,14 @@
+rule "o365 delegate mailbox access"
+when
+    to_string($message.Operation) == "MailItemsAccessed" && to_string($message.LogonType) == "2"
+then
+    // LogonType 2 = Delegate: someone reading a mailbox that is not their own
+    // (shared mailboxes, Microsoft 365 / Teams group inboxes, assistants).
+    // Each reader>mailbox pair is looked up in the o365-delegates table, a CSV
+    // of allowed pairs; "O365 - new delegate reading a mailbox" alerts on the
+    // rest. Fill the CSV with tools/Export-O365Delegates.ps1 and/or keep it
+    // learning from the log itself (README, "Delegate mailbox access").
+    let pair = concat(concat(lowercase(to_string($message.UserId)), ">"), lowercase(to_string($message.MailboxOwnerUPN)));
+    set_field("delegate_pair", pair);
+    set_field("delegate_pair_known", is_not_null(lookup_value("o365-delegates", pair)));
+end

@@ -1,0 +1,16 @@
+rule "o365 mail access source network"
+when
+    to_string($message.Operation) == "MailItemsAccessed" && has_field("ClientIPAddress")
+then
+    // Network behind a mailbox read, for "O365 - mail read from outside EU/EEA"
+    // (CISA playbook s2.4.1). Microsoft's own infrastructure reads mail on a
+    // user's behalf (IMAP fetch, connected accounts) and geolocates as the US;
+    // in the tenant this was built on that was 99.6% of all non-EU mail reads.
+    // AS8075 is Microsoft. 2603:1000::/24 is registered to Microsoft too, but
+    // parts of it (2603:10a6::) have no ASN entry in GeoLite2, hence both.
+    // Needs the geoip-asn lookup table (README, "Lookup tables").
+    let ip = to_string($message.ClientIPAddress);
+    let asn = to_string(lookup_value("geoip-asn", ip), "");
+    set_field("mail_src_asn", asn);
+    set_field("mail_src_is_microsoft", asn == "8075" || starts_with(ip, "2603:10"));
+end

@@ -1,6 +1,6 @@
 # Microsoft 365 audit alerts for Graylog
 
-29 security alerts for Microsoft 365 / Entra audit logs, as an importable
+37 security alerts for Microsoft 365 / Entra audit logs, as an importable
 Graylog content pack plus a small harness for tuning them.
 
 (The source API is still named the *Office 365 Management Activity API*, so that
@@ -30,12 +30,17 @@ rest of this README explains why.
    only the enrichment pipeline produces, so without step 4 of
    [Installing it](#installing-it) the alert never fires and never errors.
    Failure mode 10 explains why the query cannot be written without it.
+6. **Three of the mail-access alerts need enrichment too**: `mail read by an
+   unrecognised app`, `new delegate reading a mailbox` and `mail read from
+   outside EU/EEA` query fields set by the pipeline. The delegate alert also
+   needs a list of who may read which mailbox — see
+   [Delegate mailbox access](#delegate-mailbox-access).
 
 Then, before trusting any of it, read the next section.
 
 ## The alerts
 
-29 definitions. Priority 3 is Graylog's "high", 1 is "low". Baselines are from
+37 definitions. Priority 3 is Graylog's "high", 1 is "low". Baselines are from
 one real tenant over 90 days — yours will differ, which is the point of
 `sync.py --dry`.
 
@@ -93,6 +98,25 @@ match nothing at all. See failure mode 8.
 |---|---|---|---|
 | mailbox export requested | 3 | `New-MailboxExportRequest`, `New-ComplianceSearch`/`Action` | 0 / 90d |
 | anonymous sharing link created | 2 | `AnonymousLinkCreated`, `AddedToSecureLink`, `AddedToSharingLink`, `SharingInvitationCreated` | 41 / 90d |
+
+### Mail access (CISA playbook)
+
+Added after a gap analysis against CISA's
+[Microsoft Expanded Cloud Logs Implementation Playbook](https://www.cisa.gov/resources-tools/resources/microsoft-expanded-cloud-logs-implementation-playbook)
+— see [CISA playbook coverage](#cisa-playbook-coverage). Everything above
+watches sign-ins and configuration; these watch who reads and sends mail,
+which is where a stolen token shows up when it never signs in.
+
+| alert | prio | catches | baseline |
+|---|---|---|---|
+| mail read by an unrecognised app | 3 | `MailItemsAccessed` by an app that is neither Microsoft first-party nor on your trusted list — the Storm-0558 detection. **enrichment** | 0 once trusted |
+| mailbox audit settings changed | 3 | `Set-Mailbox` audit parameters, `Set-OrganizationConfig -AuditDisabled` | 0 / 90d |
+| mailbox opened with admin logon | 3 | `LogonType 1`: eDiscovery, MAPI editor, impersonation | 0 / 30d |
+| Teams chats read via Graph API | 2 | `MessagesListed`, `ChatRetrieved`, `MessageRead`, `MessageHostedContentRead` — logged only for Graph API access, i.e. scripted harvesting | 0 / 90d |
+| new delegate reading a mailbox | 2 | `LogonType 2` by a reader>mailbox pair not on the allowlist. **enrichment** + lookup | — |
+| mail read from outside EU/EEA | 2 | mailbox reads from abroad, excluding Microsoft's own infrastructure. **enrichment** | 1 trip / 30d |
+| burst of sent mail from one mailbox | 2 | >80 `Send` per mailbox per hour — a compromised mailbox phishing | max 71 / hour |
+| message sent to very many recipients | 1 | >80 recipients on one message. Set it above your all-staff list | 0 / 30d |
 
 ### Relaying Microsoft and watching ourselves
 
@@ -325,7 +349,7 @@ which is its main limitation.
 covers `Set-Mailbox` forwarding, which needs no inbox rule and so never
 triggers Microsoft's policy.
 
-## Enrichment (optional, but it unlocks four of the alerts)
+## Enrichment (optional, but several alerts need it)
 
 Graylog's Threat Intelligence plugin ships with Tor and Spamhaus lists, and a
 public list of Microsoft first-party application ids is maintained at
@@ -343,6 +367,9 @@ investigations into fields you can alert and chart on:
 | `ApplicationName` | the public app list | readable names instead of bare GUIDs |
 | `mfa_methods_changed` | set-diff of the MFA Id lists | separates a genuine MFA add/remove/swap from a plain Authenticator login, which Entra logs identically — see failure mode 10 |
 | `mfa_method_added` / `mfa_method_removed` | same | which direction it went, so a swap is visible as both at once |
+| `mail_src_is_microsoft`, `mail_src_asn` | GeoLite2 ASN, mail reads | Microsoft reads mail on users' behalf from its own IPv6 range, which geolocates as the US — 99.6% of one tenant's non-EU mail reads |
+| `delegate_pair_known` | `o365-delegates` lookup | whether this reader may read this mailbox |
+| `ClientIP_country_code` on Teams | GeoLite2 Country | Teams masks the last octet (`52.112.174.x`), so the GeoIP processor never geolocates meeting joins |
 
 ### Installing it
 
@@ -351,9 +378,10 @@ investigations into fields you can alert and chart on:
    `lookup/microsoft-apps.json`. Without this the adapter silently fetches
    nothing — it reports `has_error: false` and simply returns no values, with
    only a system notification saying *"URL not allowlisted"*.
-3. Create the cache, data adapter and lookup table from
-   `lookup/microsoft-apps.json`.
-4. Create the four rules in `pipeline/` and the pipeline in `pipeline.txt`,
+3. Create the caches, data adapters and lookup tables from
+   `lookup/microsoft-apps.json`, `lookup/geoip.json` and
+   `lookup/o365-delegates.json`.
+4. Create the seven rules in `pipeline/` and the pipeline in `pipeline.txt`,
    then connect it to your O365 stream(s).
 5. Edit the `trusted` line in `30-applications.pipeline-rule` to list the
    non-Microsoft apps you expect. It ships empty.
@@ -364,6 +392,10 @@ Two things that will bite you otherwise:
   port (`20.105.93.26:13872`) and Azure service traffic is often IPv6. The
   threat-intel rule strips the port from IPv4 only — splitting on `:` would
   destroy an IPv6 address.
+* **A MaxMind adapter must declare the right database type.** A Country or
+  ASN `.mmdb` declared as `MAXMIND_CITY` loads without an error and returns
+  null for every key. One production instance had both adapters like that
+  for months; nothing used them, so nothing noticed.
 * **The lookup cache remembers misses.** If you query a key before the adapter
   has loaded, the null is cached for the cache TTL. Purge the table after
   fixing the allowlist, or you will think it is still broken.
@@ -389,6 +421,55 @@ _exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:t
 Adding a trusted app means editing one line in a pipeline rule instead of
 growing a query without bound.
 
+## Delegate mailbox access
+
+`new delegate reading a mailbox` alerts when someone reads a mailbox that is
+not theirs (`MailItemsAccessed`, `LogonType 2`) and the pair
+`reader>mailbox` is not in the `o365-delegates` lookup table — a CSV with
+columns `pair,source`, re-read by Graylog every 5 minutes. Two ways to fill
+it, which combine:
+
+**From Microsoft — who is allowed.** `tools/Export-O365Delegates.ps1` signs in
+through the browser (`-Device` for a device code), reads FullAccess on shared
+mailboxes (groups expanded to members) and the members of Microsoft 365 /
+Teams groups, and writes the CSV. Read-only, no app registration:
+
+```powershell
+pwsh tools/Export-O365Delegates.ps1                         # shared + group inboxes
+pwsh tools/Export-O365Delegates.ps1 -IncludeUserMailboxes   # also assistants etc.
+```
+
+Microsoft Graph cannot replace this: it exposes group membership but not
+mailbox permissions, which only Exchange Online PowerShell returns.
+
+**From the log — who actually reads.** `tools/o365-delegates-sync.py` runs
+next to Graylog (stock Python image, standard library only), and every hour
+writes every pair seen reading as a delegate in the last 90 days, merged with
+any `o365_delegates_*.csv` beside it — such as the PowerShell export saved as
+`o365_delegates_export.csv`. A new pair then alerts once, on first use, and is
+learned on the next run; a pair unused for 90 days drops out. It needs a
+Graylog token that can read the O365 stream — a service account with the
+Reader role and that one stream is enough. It never writes an empty file and
+keeps the learned pairs if Graylog cannot be queried, because an empty
+allowlist makes every delegate read alert.
+
+## CISA playbook coverage
+
+Against [CISA's Microsoft Expanded Cloud Logs Implementation Playbook](https://www.cisa.gov/resources-tools/resources/microsoft-expanded-cloud-logs-implementation-playbook)
+(v1.1, May 2026; section and page numbers are the PDF's):
+
+| playbook | covered by | note |
+|---|---|---|
+| §1.3 p.10 — keep logs ≥180 days | your index set retention | not an alert |
+| §2.1.2 p.13 — audit tampering | mailbox audit settings changed, admin audit configuration changed, mailbox audit bypass configured | |
+| §2.3.1 p.17–19 — MailItemsAccessed | unrecognised app, admin logon, new delegate, outside EU/EEA | |
+| §2.3.1 p.19–20 — Send | burst of sent mail, very many recipients, mail forwarding configured | |
+| §2.3.1 p.20–21, §2.3.2 — search queries | — | `SearchQueryInitiated*` must be switched on per mailbox in Exchange and needs Audit (Premium) (App. F Q1). Not covered here |
+| §2.3.3 p.22–23 — meeting participants | enrichment: Teams IPs geolocated | investigation, no alert |
+| §2.3.3 p.24–29 — Teams via Graph API | Teams chats read via Graph API | |
+| §2.4.1 p.30–31 — unusual apps reading mail | unrecognised app, outside EU/EEA | |
+| §2.4.2–2.4.3 p.31–35 — keyword searches; phishing from a compromised account | burst of sent mail | keyword searches need the search events above |
+
 ## Tools
 
 Not required to run the alerts — Graylog stores them itself. These are for
@@ -401,6 +482,8 @@ echo -n 'your-graylog-token' > tools/.gltok  # chmod 600
 python3 tools/sync.py --dry      # validate + 90-day hit count per alert
 python3 tools/sync.py --apply    # create or update, by title, idempotent
 python3 tools/watch_test.py 60   # RECORDS vs EVENTS while testing
+pwsh tools/Export-O365Delegates.ps1   # delegate allowlist from Exchange
+python3 tools/o365-delegates-sync.py --once   # same, learned from the log
 ```
 
 `sync.py --dry` is the habit worth keeping: it tells you what a query change

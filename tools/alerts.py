@@ -32,11 +32,22 @@ THRESHOLD_PER_ALERT = {
     # worst legitimate case in 90d was 15 bad passwords in 30 min by a real
     # user, p95 is 5. A threshold of 10 fires about once a quarter.
     "O365 - repeated bad password for one account": 10.0,
+    # max 71 sends in one mailbox-hour over 30d in the reference tenant
+    "O365 - burst of sent mail from one mailbox": 80.0,
+}
+
+# A rate threshold needs a window matching its unit.
+WINDOW_PER_ALERT = {
+    "O365 - burst of sent mail from one mailbox": 3_600_000,
 }
 
 GRACE_PER_ALERT = {
     "O365 - login from unexpected country": 86_400_000,
     "O365 - login from outside EU/EEA": 86_400_000,
+    "O365 - mail read from outside EU/EEA": 86_400_000,
+    "O365 - mail read by an unrecognised app": 86_400_000,
+    "O365 - new delegate reading a mailbox": 604_800_000,
+    "O365 - burst of sent mail from one mailbox": 3_600_000,
 }
 
 # EU, plus the rest of the EEA (IS/LI/NO), CH and GB. Liechtenstein is in here
@@ -337,6 +348,79 @@ ALERTS = [
      "4/90d with this allowlist (LK x2, AE, TR). Strict EU-only would add 60 "
      "hits from one user behind an LI exit node. _exists_ guard is required: "
      "without it a record missing the geoip field satisfies the NOT and fires"),
+
+    # --- CISA Microsoft Expanded Cloud Logs playbook (v1.1, May 2026) ---
+    # https://www.cisa.gov/resources-tools/resources/microsoft-expanded-cloud-logs-implementation-playbook
+    # Section/page refs are the PDF's. Baselines are the reference tenant's.
+
+    # s2.3.3 p.24-29, App. F Q8: these four are written ONLY when Teams chats
+    # are read through the Graph API - i.e. a script or app harvesting chats.
+    ("O365 - Teams chats read via Graph API",
+     'Operation:(MessagesListed OR ChatRetrieved OR MessageRead '
+     'OR MessageHostedContentRead)',
+     2, ["UserId"], "0/90d. CISA playbook s2.3.3: Graph-API-only events, "
+                    "the scripted chat-harvesting scenario"),
+
+    # s1.2 p.8-9 + s2.4.1 p.30-31: the Storm-0558 detection - mail read by an
+    # app the tenant does not use. Needs the enrichment pipeline (the
+    # application rule falls back to AppId for mail access); the _exists_
+    # guard keeps unlabelled records out. Put legitimate apps on the rule's
+    # trusted list rather than loosening this query.
+    ("O365 - mail read by an unrecognised app",
+     'Operation:MailItemsAccessed AND _exists_:app_is_microsoft '
+     'AND NOT app_is_microsoft:true AND NOT app_is_trusted:true',
+     3, ["AppId", "MailboxOwnerUPN"],
+     "0 expected once the tenant's own apps are trusted: 8 distinct apps read "
+     "mail in 30d. CISA playbook s2.4.1 (unexpected AppId, no sign-in event)"),
+
+    # s2.1.2 p.13: switching mailbox auditing off is a known attacker step.
+    # Cmdlet parameters are flattened into top-level fields by the collector,
+    # so a changed audit setting shows up as the parameter's own field.
+    ("O365 - mailbox audit settings changed",
+     '((Operation:"Set-Mailbox" AND (_exists_:AuditEnabled OR _exists_:AuditOwner '
+     'OR _exists_:AuditDelegate OR _exists_:AuditAdmin OR _exists_:DefaultAuditSet '
+     'OR _exists_:AuditLogAgeLimit)) OR (Operation:"Set-OrganizationConfig" '
+     f'AND _exists_:AuditDisabled)) AND NOT UserId:"{MS_EXCHANGE_SVC}"',
+     3, ["UserId"], "0/90d (318 Set-Mailbox, none touching audit). "
+                    "CISA playbook s2.1.2"),
+
+    # s2.1.2 p.14: LogonType 1 = Admin - eDiscovery, MAPI editor, or an
+    # account with ApplicationImpersonation reading someone else's mailbox.
+    ("O365 - mailbox opened with admin logon",
+     'Operation:MailItemsAccessed AND LogonType:1',
+     3, ["UserId", "MailboxOwnerUPN"], "0/30d. CISA playbook s2.1.2 logon types"),
+
+    # LogonType 2 = Delegate. Needs the o365-delegates lookup table and the
+    # "o365 delegate mailbox access" rule (README, "Delegate mailbox access").
+    ("O365 - new delegate reading a mailbox",
+     'Operation:MailItemsAccessed AND LogonType:2 AND delegate_pair_known:false',
+     2, ["UserId", "MailboxOwnerUPN"],
+     "943 delegate reads/30d from 17 pairs in the reference tenant. "
+     "CISA playbook s2.3.1"),
+
+    # s2.4.1 p.30: a stolen or forged token reads mail WITHOUT a sign-in, so
+    # the login-country rules never see it. Microsoft's own infrastructure
+    # geolocates as the US and must be excluded (mail_src_is_microsoft, set
+    # by "o365 mail access source network").
+    ("O365 - mail read from outside EU/EEA",
+     'Operation:MailItemsAccessed AND mail_src_is_microsoft:false '
+     'AND _exists_:ClientIPAddress_country_code AND NOT ClientIPAddress_country_code:('
+     + ' OR '.join(ALLOWED_CC) + ')',
+     2, ["MailboxOwnerUPN", "ClientIPAddress_country_code"],
+     "99.6% of non-EU mail reads were Microsoft's own IPv6 range; the rest "
+     "was one trip = 1 mail in 30d. CISA playbook s2.4.1"),
+
+    # s2.4.3 p.35: a compromised mailbox used to phish.
+    ("O365 - burst of sent mail from one mailbox",
+     'Operation:Send',
+     2, ["MailboxOwnerUPN"], "max 71/mailbox-hour in 30d, threshold 80. "
+                             "CISA playbook s2.4.3"),
+
+    # Same scenario, one message. Set the threshold above the size of your
+    # all-staff distribution, or the company announcements will fire it.
+    ("O365 - message sent to very many recipients",
+     'Operation:Send AND Item_RecipientsCount:>80',
+     1, ["MailboxOwnerUPN"], "0/30d (max 75 = all staff). CISA playbook s2.4.3"),
 ]
 
 
@@ -361,7 +445,7 @@ def definition(title, query, priority, group_by, note):
                 "left": {"expr": "number-ref", "ref": "count-0"},
                 "right": {"expr": "number",
                           "value": THRESHOLD_PER_ALERT.get(title, 0.0)}}},
-            "search_within_ms": WINDOW_MS,
+            "search_within_ms": WINDOW_PER_ALERT.get(title, WINDOW_MS),
             "execute_every_ms": EVERY_MS,
             "use_cron_scheduling": False,
             "cron_expression": None,

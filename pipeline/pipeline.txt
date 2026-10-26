@@ -3,6 +3,9 @@ stage 0 match either
   rule "o365 threat intel enrichment";
   rule "o365 application enrichment";
   rule "o365 mfa method change detection";
+  rule "o365 mail access source network";
+  rule "o365 delegate mailbox access";
+  rule "o365 masked ip geolocation";
 stage 1 match either
   rule "o365 whois enrichment for sign-ins";
 end

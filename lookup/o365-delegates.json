@@ -1,0 +1,36 @@
+{
+ "note": "Create via System > Lookup Tables, or POST these to the API in order. The CSV is written by tools/Export-O365Delegates.ps1 and/or tools/o365-delegates-sync.py (README, 'Delegate mailbox access'); the path is inside the Graylog container, so mount a host directory there.",
+ "cache": {
+  "title": "No cache",
+  "name": "no-cache",
+  "description": "Pass-through cache for local lookups",
+  "config": {
+   "type": "none"
+  }
+ },
+ "data_adapter": {
+  "title": "O365 delegates",
+  "name": "o365-delegates",
+  "description": "Allowed reader>mailbox pairs for delegate mailbox access",
+  "config": {
+   "type": "csvfile",
+   "path": "/mnt/lookuptablescsv/o365_delegates.csv",
+   "separator": ",",
+   "quotechar": "\"",
+   "key_column": "pair",
+   "value_column": "source",
+   "check_interval": 300,
+   "case_insensitive_lookup": true,
+   "cidr_lookup": false
+  }
+ },
+ "lookup_table": {
+  "title": "O365 delegates",
+  "name": "o365-delegates",
+  "description": "reader>mailbox -> where the grant came from. Used by o365 delegate mailbox access",
+  "default_single_value": "",
+  "default_single_value_type": "NULL",
+  "default_multi_value": "",
+  "default_multi_value_type": "NULL"
+ }
+}

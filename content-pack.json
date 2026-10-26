@@ -1,9 +1,9 @@
 {
  "v": "1",
  "id": "a6f5c1e2-0b7d-4c3a-9e8f-1d2c3b4a5e6f",
- "rev": 1,
+ "rev": 2,
  "name": "Microsoft 365 audit alerts",
- "summary": "29 security alerts for Microsoft 365 Management API audit logs",
+ "summary": "37 security alerts for Microsoft 365 Management API audit logs",
  "description": "Event definitions for Office 365 / Entra audit logs collected into Graylog. Every query and threshold was validated against 90 days of real tenant data before inclusion - see the README for the failure modes this set exists to avoid.\n\nAfter importing: set the notification recipients, point the definitions at your own stream(s), and edit the per-user country exceptions in the two geo alerts, which ship with example.com placeholders.",
  "vendor": "community",
  "url": "https://github.com/tomaskovacik/microsoft365-graylog-alerts",
@@ -3853,6 +3853,1070 @@
      "@type": "string",
      "@value": "o365-logs"
     }
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "2ad10295-ee55-4561-9060-3ffdc8ef10cb",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - Teams chats read via Graph API"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d. CISA playbook s2.3.3: Graph-API-only events, the scripted chat-harvesting scenario"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:(MessagesListed OR ChatRetrieved OR MessageRead OR MessageHostedContentRead)"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "346715db-34cf-45b0-b63f-e0fcac1e820c",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mail read by an unrecognised app"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0 expected once the tenant's own apps are trusted: 8 distinct apps read mail in 30d. CISA playbook s2.4.1 (unexpected AppId, no sign-in event)"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:MailItemsAccessed AND _exists_:app_is_microsoft AND NOT app_is_microsoft:true AND NOT app_is_trusted:true"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "AppId",
+      "MailboxOwnerUPN"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "AppId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "AppId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.AppId}",
+        "require_values": true
+       }
+      ]
+     },
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "AppId",
+     "MailboxOwnerUPN"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 86400000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "a39341e5-5e62-44ab-8aca-34a2ed937d42",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mailbox audit settings changed"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/90d (318 Set-Mailbox, none touching audit). CISA playbook s2.1.2"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "((Operation:\"Set-Mailbox\" AND (_exists_:AuditEnabled OR _exists_:AuditOwner OR _exists_:AuditDelegate OR _exists_:AuditAdmin OR _exists_:DefaultAuditSet OR _exists_:AuditLogAgeLimit)) OR (Operation:\"Set-OrganizationConfig\" AND _exists_:AuditDisabled)) AND NOT UserId:\"NT SERVICE\\\\MSExchangeAdminApiNetCore (Microsoft.Exchange.AdminApi.NetCore)\""
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "2ee2dea5-9313-44df-9794-4f91fb080865",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mailbox opened with admin logon"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/30d. CISA playbook s2.1.2 logon types"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 3
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:MailItemsAccessed AND LogonType:1"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId",
+      "MailboxOwnerUPN"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     },
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId",
+     "MailboxOwnerUPN"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "3b64eb50-7933-47db-a1c9-41de0833c4b5",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - new delegate reading a mailbox"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 943 delegate reads/30d from 17 pairs in the reference tenant. CISA playbook s2.3.1"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:MailItemsAccessed AND LogonType:2 AND delegate_pair_known:false"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "UserId",
+      "MailboxOwnerUPN"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "UserId"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "UserId": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.UserId}",
+        "require_values": true
+       }
+      ]
+     },
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "UserId",
+     "MailboxOwnerUPN"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 604800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "ea89aa95-9316-4e37-b96b-3ed8b66c8836",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - mail read from outside EU/EEA"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 99.6% of non-EU mail reads were Microsoft's own IPv6 range; the rest was one trip = 1 mail in 30d. CISA playbook s2.4.1"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:MailItemsAccessed AND mail_src_is_microsoft:false AND _exists_:ClientIPAddress_country_code AND NOT ClientIPAddress_country_code:(AT OR BE OR BG OR HR OR CY OR CZ OR DK OR EE OR FI OR FR OR DE OR GR OR HU OR IE OR IT OR LV OR LT OR LU OR MT OR NL OR PL OR PT OR RO OR SK OR SI OR ES OR SE OR IS OR LI OR NO OR CH OR GB)"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "MailboxOwnerUPN",
+      "ClientIPAddress_country_code"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "MailboxOwnerUPN"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": true
+       }
+      ]
+     },
+     "ClientIPAddress_country_code": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.ClientIPAddress_country_code}",
+        "require_values": false
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "MailboxOwnerUPN",
+     "ClientIPAddress_country_code"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 86400000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "31528842-7d46-4fa9-8e2e-738583a9487d",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - burst of sent mail from one mailbox"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: max 71/mailbox-hour in 30d, threshold 80. CISA playbook s2.4.3"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 2
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:Send"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "MailboxOwnerUPN"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "MailboxOwnerUPN"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 80.0
+       }
+      }
+     },
+     "search_within_ms": 3600000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "MailboxOwnerUPN"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 3600000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
+   },
+   "constraints": [
+    {
+     "type": "server-version",
+     "version": ">=7.1.9+002c047"
+    }
+   ]
+  },
+  {
+   "id": "72e0cf66-da87-4271-af24-7e6497397144",
+   "type": {
+    "name": "event_definition",
+    "version": "1"
+   },
+   "v": "1",
+   "data": {
+    "_scope": {
+     "@type": "string",
+     "@value": "DEFAULT"
+    },
+    "title": {
+     "@type": "string",
+     "@value": "O365 - message sent to very many recipients"
+    },
+    "description": {
+     "@type": "string",
+     "@value": "Baseline: 0/30d (max 75 = all staff). CISA playbook s2.4.3"
+    },
+    "remediation_steps": {
+     "@type": "string",
+     "@value": ""
+    },
+    "updated_at": "2026-10-25T20:00:00.000Z",
+    "matched_at": null,
+    "priority": {
+     "@type": "integer",
+     "@value": 1
+    },
+    "alert": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "config": {
+     "type": "aggregation-v1",
+     "query": {
+      "@type": "string",
+      "@value": "Operation:Send AND Item_RecipientsCount:>80"
+     },
+     "query_parameters": [],
+     "filters": [],
+     "streams": [
+      "570c742f-cd2d-4184-8c82-c1efcc05fe46",
+      "afb6be91-cba5-4b4d-a36e-a4efe5be8bc7"
+     ],
+     "stream_categories": [],
+     "group_by": [
+      "MailboxOwnerUPN"
+     ],
+     "series": [
+      {
+       "type": "count",
+       "id": "count-0",
+       "field": "MailboxOwnerUPN"
+      }
+     ],
+     "conditions": {
+      "expression": {
+       "expr": ">",
+       "left": {
+        "expr": "number-ref",
+        "ref": "count-0"
+       },
+       "right": {
+        "expr": "number",
+        "value": 0.0
+       }
+      }
+     },
+     "search_within_ms": 1800000,
+     "execute_every_ms": 300000,
+     "use_cron_scheduling": false,
+     "cron_expression": null,
+     "cron_timezone": null,
+     "event_limit": 100
+    },
+    "field_spec": {
+     "MailboxOwnerUPN": {
+      "data_type": "string",
+      "providers": [
+       {
+        "type": "template-v1",
+        "template": "${source.MailboxOwnerUPN}",
+        "require_values": true
+       }
+      ]
+     }
+    },
+    "key_spec": [
+     "MailboxOwnerUPN"
+    ],
+    "notification_settings": {
+     "grace_period_ms": 1800000,
+     "backlog_size": 5
+    },
+    "notifications": [
+     {
+      "notification_id": {
+       "@type": "string",
+       "@value": "04ce8cd7-79b7-4d7b-adfb-c6eab9227086"
+      },
+      "notification_parameters": null
+     }
+    ],
+    "storage": [
+     {
+      "type": "persist-to-streams-v1",
+      "streams": [
+       "000000000000000000000002"
+      ]
+     }
+    ],
+    "is_scheduled": {
+     "@type": "boolean",
+     "@value": true
+    },
+    "event_procedure": null,
+    "event_summary_template": null
    },
    "constraints": [
     {

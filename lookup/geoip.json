@@ -1,0 +1,59 @@
+{
+ "note": "Create via System > Lookup Tables, or POST these to the API in order. The .mmdb paths are where Graylog's own GeoIP processor expects them; adjust to your install. database_type MUST match the file: a Country or ASN database declared as MAXMIND_CITY loads without complaint and returns null for every key.",
+ "cache": {
+  "title": "No cache",
+  "name": "no-cache",
+  "description": "Pass-through cache for local lookups",
+  "config": {
+   "type": "none"
+  }
+ },
+ "data_adapters": [
+  {
+   "title": "GeoLite2 country",
+   "name": "geolite2-country",
+   "description": "MaxMind GeoLite2 Country",
+   "config": {
+    "type": "maxmind_geoip",
+    "path": "/var/lib/GeoIP/GeoLite2-Country.mmdb",
+    "database_type": "MAXMIND_COUNTRY",
+    "check_interval": 1,
+    "check_interval_unit": "MINUTES"
+   }
+  },
+  {
+   "title": "GeoLite2 ASN",
+   "name": "geolite2-asn",
+   "description": "MaxMind GeoLite2 ASN",
+   "config": {
+    "type": "maxmind_geoip",
+    "path": "/var/lib/GeoIP/GeoLite2-ASN.mmdb",
+    "database_type": "MAXMIND_ASN",
+    "check_interval": 1,
+    "check_interval_unit": "MINUTES"
+   }
+  }
+ ],
+ "lookup_tables": [
+  {
+   "title": "GeoIP country",
+   "name": "geoip-country",
+   "data_adapter": "geolite2-country",
+   "description": "IP to ISO country code. Used by o365 masked ip geolocation",
+   "default_single_value": "",
+   "default_single_value_type": "NULL",
+   "default_multi_value": "",
+   "default_multi_value_type": "NULL"
+  },
+  {
+   "title": "GeoIP ASN",
+   "name": "geoip-asn",
+   "data_adapter": "geolite2-asn",
+   "description": "IP to AS number (single value) and organisation. Used by o365 mail access source network",
+   "default_single_value": "",
+   "default_single_value_type": "NULL",
+   "default_multi_value": "",
+   "default_multi_value_type": "NULL"
+  }
+ ]
+}

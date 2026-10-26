@@ -1,0 +1,10 @@
+rule "o365 masked ip geolocation"
+when
+    has_field("ClientIP") && regex("^(\\d{1,3}\\.){3}x$", to_string($message.ClientIP)).matches == true
+then
+    // Teams records mask the last octet ("52.112.174.x"), so Graylog's GeoIP
+    // processor skips them and meeting joins never get a country. The /24 is
+    // enough for one. Needs the geoip-country lookup table.
+    let ip = regex_replace("x$", to_string($message.ClientIP), "0");
+    set_field("ClientIP_country_code", lookup_value("geoip-country", ip));
+end

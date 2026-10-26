@@ -1,11 +1,14 @@
 rule "o365 application enrichment"
 when
-    has_field("ApplicationId")
+    has_field("ApplicationId") || has_field("AppId")
 then
     // Resolve the GUID to a readable name from merill/microsoft-info, which
     // Graylog refreshes hourly (4445 apps). Also fixes dashboard panels that
     // would otherwise show bare GUIDs.
-    let app = to_string($message.ApplicationId);
+    // Sign-ins carry the app in ApplicationId; mailbox reads (MailItemsAccessed)
+    // and sends carry it in AppId. Without the fallback, mail access is never
+    // labelled - "O365 - mail read by an unrecognised app" depends on it.
+    let app = to_string($message.ApplicationId, to_string($message.AppId));
     let name = lookup_value("microsoft-apps", app);
     set_field("app_is_microsoft", is_not_null(name));
     set_field("ApplicationName", to_string(name, to_string($message.ApplicationDisplayName, app)));
