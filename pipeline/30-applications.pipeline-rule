@@ -10,7 +10,21 @@ then
     // labelled - "O365 - mail read by an unrecognised app" depends on it.
     let app = to_string($message.ApplicationId, to_string($message.AppId));
     let name = lookup_value("microsoft-apps", app);
-    set_field("app_is_microsoft", is_not_null(name));
+    // Microsoft first-party apps missing from merill's list, each with evidence
+    // from its own MailItemsAccessed records (owner reading own mailbox):
+    //   7fba38f4 Sticky Notes - client "StickyNotes/6.1.4.0", Notes folder
+    //   6dec647e Outlook (desktop "Microsoft Office/16.0" + new Outlook
+    //            "OneOutlook")
+    //   464e0e4d, d34dcd43 - server-side "RESTSystem" reads from Microsoft's
+    //            own 2603:10xx:: space (AS8075), no user agent
+    //   14638111 Copilot, 2821b473 OneNote web MSAL client, a2760c41 M365 web
+    //            SPA MSAL client (named external sources)
+    // All but 6dec647e are also on Elastic's "M365 Exchange Mailbox Accessed
+    // by Unusual Client" exclusion list. Found by a full 30-day aggregation of
+    // every AppId reading mail in one tenant. Add ids here only with evidence
+    // they are Microsoft's own.
+    let ms_extra = "7fba38f4-ec1f-458d-906c-f4e3c4f41335,6dec647e-42c4-45a6-8f13-e8250d34e033,464e0e4d-676a-4c3b-9f81-2ed9b2a9acd2,d34dcd43-8519-44e4-827c-de79b767da47,14638111-3389-403d-b206-a6a71d9f8f16,2821b473-fe24-4c86-ba16-62834d6e80c3,a2760c41-63c9-42b5-8d58-bfa1fd9e2eb3";
+    set_field("app_is_microsoft", is_not_null(name) || contains(ms_extra, app));
     set_field("ApplicationName", to_string(name, to_string($message.ApplicationDisplayName, app)));
 
     // ---------------------------------------------------------------------

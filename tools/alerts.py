@@ -370,8 +370,9 @@ ALERTS = [
      'Operation:MailItemsAccessed AND _exists_:app_is_microsoft '
      'AND NOT app_is_microsoft:true AND NOT app_is_trusted:true',
      3, ["AppId", "MailboxOwnerUPN"],
-     "0 expected once the tenant's own apps are trusted: 8 distinct apps read "
-     "mail in 30d. CISA playbook s2.4.1 (unexpected AppId, no sign-in event)"),
+     "0 expected once the tenant's own apps are trusted: 19 distinct apps "
+     "read mail in 30d, 7 of them Microsoft apps missing from merill's list "
+     "(ms_extra in the application rule). CISA playbook s2.4.1"),
 
     # s2.1.2 p.13: switching mailbox auditing off is a known attacker step.
     # Cmdlet parameters are flattened into top-level fields by the collector,
